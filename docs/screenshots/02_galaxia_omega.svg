@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <radialGradient id="nebulaBackdrop" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#2a0845" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#19042b" stop-opacity="0.7"/>
+      <stop offset="70%" stop-color="#0b0213" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="20%" stop-color="#ffd45c"/>
+      <stop offset="60%" stop-color="#ff0055"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="spiralBloom">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="100%" height="100%" fill="#030006"/>
+  <!-- Nebulosa Espiral Omega -->
+  <circle cx="600" cy="380" r="350" fill="url(#nebulaBackdrop)"/>
+  <!-- Brazos Espirales de 44 Nodos del Viaje 3D -->
+  <g filter="url(#spiralBloom)">
+    <path d="M 600 380 C 660 330, 800 300, 910 360 C 1020 420, 1000 570, 890 640 C 760 720, 560 700, 450 590 C 330 470, 350 280, 500 180 C 670 70, 920 100, 1040 240" fill="none" stroke="#ffd45c" stroke-width="2.8" opacity="0.85"/>
+    <path d="M 600 380 C 540 430, 400 460, 290 400 C 180 340, 200 190, 310 120 C 440 40, 640 60, 750 170 C 870 290, 850 480, 700 580 C 530 690, 280 660, 160 520" fill="none" stroke="#ff4757" stroke-width="2.8" opacity="0.85"/>
+  </g>
+  <!-- Núcleo Central de la Galaxia -->
+  <circle cx="600" cy="380" r="45" fill="url(#centerGlow)" filter="url(#spiralBloom)"/>
+  <!-- Estaciones y Nodos Destacados (El Bosque de Cristal, Lab IA, Santuario) -->
+  <circle cx="780" cy="310" r="7" fill="#d4af37" filter="url(#spiralBloom)"/>
+  <circle cx="910" cy="360" r="6" fill="#e056fd" filter="url(#spiralBloom)"/>
+  <circle cx="450" cy="590" r="6" fill="#00d2d3" filter="url(#spiralBloom)"/>
+  <circle cx="310" cy="120" r="5" fill="#ffd45c" filter="url(#spiralBloom)"/>
+  <circle cx="890" cy="640" r="8" fill="#ff6b6b" filter="url(#spiralBloom)"/>
+  <circle cx="500" cy="180" r="6" fill="#54a0ff" filter="url(#spiralBloom)"/>
+  <!-- Inscripción de Registro Astrométrico -->
+  <text x="600" y="690" text-anchor="middle" font-family="'Courier New', monospace" font-size="20" font-weight="bold" fill="#d4af37" letter-spacing="5">REGISTRO FOTOGRÁFICO #02 · GALAXIA OMEGA</text>
+  <text x="600" y="725" text-anchor="middle" font-family="'Courier New', monospace" font-size="13" fill="#a4b0be" letter-spacing="3">ESPIRAL CINEMÁTICA DE 44 NODOS · DESTINOS INTERACTIVOS 3D</text>
+  <text x="600" y="750" text-anchor="middle" font-family="'Courier New', monospace" font-size="11" fill="#718093" letter-spacing="2">PENTADA TRANSMUTADA · BELENTANI OMEGA ARCHIVE</text>
+</svg>
