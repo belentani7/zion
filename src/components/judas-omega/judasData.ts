@@ -789,11 +789,11 @@ export const JUDAS_LOCALE_COPY: Record<
     eyebrow: 'THE JUDAS EXPERIENCE · BELENTANI.ES · OMEGA CORE',
     heroLead:
       'Cámara de descompresión audiovisual con inicio en negro y silencio absolutos, seguida de una odisea cinematográfica de 04:20 min y zoom directo a la galaxia espiral de 44 mundos.',
-    bioTitle: 'Arquitectura Biográfica · São Paulo -> Barcelona',
+    bioTitle: 'Arquitectura Biográfica & Trayectoria Profesional · São Paulo -> Barcelona',
     bioParagraph1:
-      'BELENTANI (Pedro Belentani, 1995) es artista, compositor, productor y tecnólogo creativo afincado en Barcelona con raíces en São Paulo. Desde belentani.es (Omega Core / Dimensión Zion) y github.com/belentani7 (ia-creativa-lab, Manos Abiertas, Secure-T, LinguaForge, Belentani CV Studio), cruza IA aplicada, WebGL y música electrónica.',
+      'BELENTANI (Pedro Belentani, 1995) es Lead AI Systems Engineer, Diseñador de Arquitecturas Agenticas y Tecnólogo Creativo radicado en Barcelona (L\'Hospitalet de Llobregat), con raíces en São Paulo. Especialista en orquestación de LLMs locales, model routing adaptativo, evaluation gates con rigor ISTQB y pipelines deterministas de alta fidelidad, dirige la arquitectura técnica de belentani.es (Protocolo Omega / Dimensión Zion) y el ecosistema de investigación abierta en github.com/belentani7 (ia-creativa-lab, Manos Abiertas, Secure-T, deepseek-harness, LinguaForge).',
     bioParagraph2:
-      'Junto al productor brasileño Hey Duck / Duck Studios (JUDAS, La Deuda) fusiona dark pop, R&B alternativo y funk carioca. En "Judas Era", Judas no es literal sino una máscara escénica de quiebre, deseo y duda que convierte la tensión en soberanía.',
+      'Pionero en la convergencia de WebGL/Three.js de nivel competitivo internacional, shaders GLSL bioeléctricos y síntesis psicoacústica a 432 Hz / 76 BPM. Junto a Hey Duck / Duck Studios (JUDAS, La Deuda), transforma la ingeniería de sistemas y la tensión dramática en infraestructuras autónomas y mundos tridimensionales interactivos de máxima precisión.',
     keyQuote: '«Quédate con el metal. La llave era símbolo; mi voz nadie me la puede arrebatar.»',
     portalHint:
       'Haz clic directamente sobre los 5 diamantes IOR 2.417 en la escena 3D o pulsa cada arquetipo inferior para desbloquear la Ascensión Dorada.',
@@ -807,11 +807,11 @@ export const JUDAS_LOCALE_COPY: Record<
     eyebrow: 'THE JUDAS EXPERIENCE · BELENTANI.ES · OMEGA CORE',
     heroLead:
       'Audiovisual decompression chamber beginning in pitch black and silence, diving via a 04:20 cinematic zoom straight through the 44-node spiral galaxy.',
-    bioTitle: 'Biographical Architecture · São Paulo -> Barcelona',
+    bioTitle: 'Biographical Architecture & Technical Leadership · São Paulo -> Barcelona',
     bioParagraph1:
-      'BELENTANI (Pedro Belentani, 1995) is a Barcelona-based recording artist, songwriter, and creative technologist born in São Paulo. Through belentani.es (Omega Core / Dimension Zion) and github.com/belentani7 (ia-creativa-lab, Manos Abiertas, Secure-T, LinguaForge), he merges applied AI, Three.js shaders, and emotional sci-fi music.',
+      'BELENTANI (Pedro Belentani, 1995) is a Lead AI Systems Engineer, Agentic Architect, and Creative Technologist based in Barcelona (L\'Hospitalet de Llobregat), born in São Paulo. Specializing in local LLM orchestration, adaptive model routers, ISTQB evaluation gates, and deterministic agent harnesses, he architects the belentani.es ecosystem (Omega Protocol / Zion Dimension) and open-source intelligence repositories at github.com/belentani7 (ia-creativa-lab, Manos Abiertas, Secure-T, deepseek-harness, LinguaForge).',
     bioParagraph2:
-      'Working alongside Brazilian producer Hey Duck / Duck Studios (JUDAS, La Deuda), he blends dark pop, alternative R&B, and industrial percussion. In Judas Era, "Judas" acts as a dramatic threshold of rupture and creative transformation.',
+      'At the bleeding edge of WebGL/Three.js interactive shaders, procedural PBR geometry, and psychoacoustic 432 Hz / 76 BPM audio synthesis, he partners with Brazilian powerhouse Hey Duck / Duck Studios (JUDAS, La Deuda) to engineer world-class, sovereign digital experiences.',
     keyQuote: '"Keep the metal. The key was symbolic; nobody can steal my voice."',
     portalHint:
       'Click any of the 5 refractive diamonds (IOR 2.417) directly inside the 3D viewport or below to unlock Ascended Gold mode.',

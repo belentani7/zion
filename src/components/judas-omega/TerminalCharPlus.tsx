@@ -137,18 +137,30 @@ export const TerminalCharPlus: React.FC<TerminalCharPlusProps> = ({
     const argJoined = parts.slice(1).join('-').toLowerCase();
     const argSpace = parts.slice(1).join(' ');
 
+    if (cmd === 'galaxia' || cmd === 'galaxy' || cmd === 'transmutar' || cmd === 'ascender') {
+      onUnlockAllGems();
+      onSelectNode(0);
+      audioEngine.triggerTone(432, 2.5);
+      streamResponse(
+        '🌌 TRANSMUTACIÓN INICIADA: La terminal colapsa en singularidad bioeléctrica.\n' +
+        'El horizonte se expande hacia la Galaxia Omega (44 Nodos). Cámara conectada al núcleo estelar.'
+      );
+      return;
+    }
+
     if (cmd === 'help' || cmd === '/help') {
       streamResponse(
         'COMANDOS DEL SISTEMA:\n' +
-          '  char+ <entidad>  -> Dossier (belentani, judas, san-pedro, duck, thiago, pedro, marcos, santos, human)\n' +
-          '  tracks           -> Catálogo sonoro 2026\n' +
-          '  nodes            -> Estado de la galaxia VIAJE-3D (44 planetas)\n' +
-          '  nodo <1-44>      -> Inspeccionar planeta específico en el cosmos\n' +
-          '  432|528|639|741  -> Disparar frecuencia Solfeggio pura\n' +
-          '  omega            -> Sincronizar las 5 gemas (Ascensión Dorada)\n' +
-          '  tarot            -> Tirada local de 3 arcanos Omega\n' +
-          '  ask <pregunta>   -> Consulta libre al núcleo Gemini (/api/lore)\n' +
-          '  clear            -> Limpiar terminal'
+          '  galaxia / transmutar -> Despertar la Galaxia Omega 3D desde la terminal\n' +
+          '  char+ <entidad>      -> Dossier profesional y lore (belentani, judas, san-pedro, duck, thiago, pedro, marcos, santos, human)\n' +
+          '  tracks               -> Catálogo sonoro 2026\n' +
+          '  nodes                -> Estado de la galaxia VIAJE-3D (44 planetas)\n' +
+          '  nodo <1-44>          -> Inspeccionar planeta específico en el cosmos\n' +
+          '  432|528|639|741      -> Disparar frecuencia Solfeggio pura\n' +
+          '  omega                -> Sincronizar las 5 gemas (Ascensión Dorada)\n' +
+          '  tarot                -> Tirada local de 3 arcanos Omega\n' +
+          '  ask <pregunta>       -> Consulta libre al núcleo Gemini (/api/lore)\n' +
+          '  clear                -> Limpiar terminal'
       );
       return;
     }

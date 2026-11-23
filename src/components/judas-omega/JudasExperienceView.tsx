@@ -378,62 +378,63 @@ export const JudasExperienceView: React.FC<JudasExperienceViewProps> = ({ lang }
         </div>
       </section>
 
-      {/* 02 BIOGRAFÍA OFICIAL & MITOLOGÍA SAN PEDRO / JUDAS */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <article className="judas-milky-glass p-6 space-y-4">
-          <div className="text-[11px] font-mono text-rose-400 uppercase tracking-widest">
-            RECORD_01 // BELENTANI (@BELENTANI_)
+      {/* 02 BIOGRAFÍA OFICIAL & TERMINAL CÓSMICA ZION */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <article className="judas-milky-glass p-6 space-y-4 flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-rose-500/25 pb-2">
+              <span className="text-[11px] font-mono text-rose-400 uppercase tracking-widest">
+                RECORD_01 // ARCHITECT DOSSIER (@BELENTANI_)
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-400/30">
+                LEAD AI &amp; WEBGL
+              </span>
+            </div>
+
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-white tracking-wide">
+              {copy.bioTitle}
+            </h2>
+
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
+              {copy.bioParagraph1}
+            </p>
+
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
+              {copy.bioParagraph2}
+            </p>
           </div>
-          <h2 className="font-display text-xl font-bold text-white">{copy.bioTitle}</h2>
-          <p className="text-sm text-zinc-300 leading-relaxed">{copy.bioParagraph1}</p>
-          <p className="text-sm text-zinc-300 leading-relaxed">{copy.bioParagraph2}</p>
-          <div className="pt-2 flex flex-wrap gap-2 text-[11px] font-mono text-amber-300">
-            <span>Dark Pop</span>
-            <span>·</span>
-            <span>Electro-R&amp;B</span>
-            <span>·</span>
-            <span>Funk Carioca 2000s</span>
-            <span>·</span>
-            <span>MPB Nocturna</span>
-            <span>·</span>
-            <span>Blue Yeti X</span>
+
+          <div className="pt-3 border-t border-rose-500/20 space-y-2">
+            <div className="text-[10px] font-mono text-amber-300/80 uppercase tracking-wider">
+              CORE STACK &amp; SPECIALIZATIONS
+            </div>
+            <div className="flex flex-wrap gap-1.5 text-[11px] font-mono">
+              <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-300">LLM Local Orchestration</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-300">Adaptive Model Routers</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-zinc-300">ISTQB Evaluation Gates</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-amber-300">Three.js / GLSL Shaders</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-rose-400">Web Audio API 432 Hz</span>
+              <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-700 text-cyan-400">TypeScript 5.7 &amp; Python</span>
+            </div>
           </div>
         </article>
 
-        <article className="judas-milky-glass p-6 space-y-4">
-          <div className="text-[11px] font-mono text-amber-300 uppercase tracking-widest">
-            CRÓNICA NARRATIVA // {copy.phasesTitle}
-          </div>
-          <blockquote className="text-sm italic text-amber-200 border-b border-rose-500/25 pb-3">
-            {copy.keyQuote}
-          </blockquote>
-
-          <div className="flex flex-wrap gap-1.5">
-            {JUDAS_PHASES.map((phase, i) => (
-              <button
-                key={phase.id}
-                type="button"
-                onClick={() => setActivePhase(i)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
-                  activePhase === i
-                    ? 'bg-rose-600 text-white'
-                    : 'bg-black/60 text-zinc-400 hover:text-white border border-rose-500/25'
-                }`}
-              >
-                {phase.code}
-              </button>
-            ))}
-          </div>
-
-          <div className="bg-black/60 border border-rose-500/25 rounded-xl p-4 space-y-2">
-            <h3 className="font-display text-sm font-bold text-amber-300">{currentPhase.title}</h3>
-            {currentPhase.body.map((paragraph, idx) => (
-              <p key={idx} className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        </article>
+        {/* TERMINAL INTERACTIVA QUE TRANSMUTA EN LA GALAXIA */}
+        <div className="relative group">
+          <TerminalCharPlus
+            lang={lang}
+            audioEngine={audioEngine}
+            unlockedGems={unlockedGems}
+            onToggleGem={handleToggleGem}
+            onUnlockAllGems={handleUnlockAllGems}
+            onSelectNode={(idx) => {
+              setSelectedNodeIndex(idx);
+              setFocusPreset('galaxy');
+              setExternalFocusSeq((s) => s + 1);
+              heroStageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+          />
+        </div>
       </section>
 
       {/* 03 SONIC 432 HZ LAB & DISCOGRAFÍA CANÓNICA */}
@@ -613,20 +614,41 @@ export const JudasExperienceView: React.FC<JudasExperienceViewProps> = ({ lang }
         </div>
       </section>
 
-      {/* 05 TERMINAL CHAR+ & CAPÍTULOS DEL CÓDICE */}
+      {/* 05 CRÓNICA NARRATIVA & CAPÍTULOS DEL CÓDICE */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div className="lg:col-span-7">
-          <TerminalCharPlus
-            lang={lang}
-            audioEngine={audioEngine}
-            unlockedGems={unlockedGems}
-            onToggleGem={handleToggleGem}
-            onUnlockAllGems={handleUnlockAllGems}
-            onSelectNode={(idx) => {
-              setSelectedNodeIndex(idx);
-              setFocusPreset('galaxy');
-            }}
-          />
+        <div className="lg:col-span-7 judas-milky-glass p-6 space-y-4">
+          <div className="text-[11px] font-mono text-amber-300 uppercase tracking-widest">
+            CRÓNICA NARRATIVA // {copy.phasesTitle}
+          </div>
+          <blockquote className="text-sm italic text-amber-200 border-b border-rose-500/25 pb-3">
+            {copy.keyQuote}
+          </blockquote>
+
+          <div className="flex flex-wrap gap-1.5">
+            {JUDAS_PHASES.map((phase, i) => (
+              <button
+                key={phase.id}
+                type="button"
+                onClick={() => setActivePhase(i)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
+                  activePhase === i
+                    ? 'bg-rose-600 text-white'
+                    : 'bg-black/60 text-zinc-400 hover:text-white border border-rose-500/25'
+                }`}
+              >
+                {phase.code}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-black/60 border border-rose-500/25 rounded-xl p-4 space-y-2">
+            <h3 className="font-display text-sm font-bold text-amber-300">{currentPhase.title}</h3>
+            {currentPhase.body.map((paragraph, idx) => (
+              <p key={idx} className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                {paragraph}
+              </p>
+            ))}
+          </div>
         </div>
 
         <div className="lg:col-span-5 judas-milky-glass p-5 space-y-3">
