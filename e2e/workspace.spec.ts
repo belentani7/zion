@@ -10,13 +10,15 @@ import { expect, test } from '@playwright/test';
  * accessible name, which is exactly what criterion 24 protects.
  */
 
+// Nombres accesibles reales de las pestañas (bundle `es`, que es el idioma
+// inicial). El guion de OMEGA-PRIME y el "3D" de Visual Engine son literales.
 const TABS = [
-  'JUDAS OMEGA',
-  'OMEGA PRIME',
-  'VISUAL ENGINE',
-  'SDD MAESTRO',
-  'CHECKLIST',
-  'WORKSPACE',
+  'Judas OMEGA',
+  'OMEGA-PRIME',
+  'Visual Engine 3D',
+  'Protocolo SDD Maestro',
+  'Checklist Producción',
+  'Hub del Workspace',
 ] as const;
 
 test.describe('shell del workspace', () => {
@@ -26,15 +28,15 @@ test.describe('shell del workspace', () => {
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page).toHaveTitle(/JUDAS/i);
+    await expect(page).toHaveTitle(/Judas OMEGA/);
     await expect(page.locator('nav')).toBeVisible();
 
     for (const tab of TABS) {
       await expect(page.getByRole('button', { name: new RegExp(tab, 'i') })).toBeVisible();
     }
 
-    // The default tab must be reachable without interaction.
-    await expect(page.getByRole('heading', { level: 1 })).toBeAttached();
+    // Un único <h1> por página: el de la vista activa (Judas OMEGA).
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
     expect(errors, 'pageerror en el arranque').toEqual([]);
   });
 
@@ -51,13 +53,14 @@ test.describe('shell del workspace', () => {
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'es');
 
-    await page.getByRole('button', { name: /^EN$/ }).click();
+    // Los botones de idioma muestran el código en minúscula; el uppercase es CSS.
+    await page.getByRole('button', { name: /^en$/i }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
-    await page.getByRole('button', { name: /^PT$/ }).click();
+    await page.getByRole('button', { name: /^pt$/i }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt');
 
-    await page.getByRole('button', { name: /^CA$/ }).click();
+    await page.getByRole('button', { name: /^ca$/i }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'ca');
   });
 });
@@ -72,7 +75,7 @@ test.describe('navegación entre vistas', () => {
     for (const tab of TABS) {
       await page.getByRole('button', { name: new RegExp(tab, 'i') }).click();
       // Each view is a lazy chunk: wait for the Suspense fallback to resolve.
-      await expect(page.locator('[role="status"]')).toBeHidden({ timeout: 15_000 }).catch(() => undefined);
+      await expect(page.locator('[data-app-loading]')).toHaveCount(0, { timeout: 20_000 });
       await page.waitForLoadState('networkidle');
       await expect(page.locator('#main-content')).not.toBeEmpty();
       await expect(page.getByRole('button', { name: new RegExp(tab, 'i') })).toHaveAttribute(

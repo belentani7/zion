@@ -167,3 +167,73 @@ export function subscribeToVisibility(onChange: (hidden: boolean) => void): () =
   document.addEventListener('visibilitychange', handler);
   return () => document.removeEventListener('visibilitychange', handler);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Interacción orbital (VisualEngineCanvas)                                    */
+/* -------------------------------------------------------------------------- */
+
+export const MIN_CAMERA_DISTANCE = 10;
+export const MAX_CAMERA_DISTANCE = 90;
+export const MAX_CAMERA_PITCH = Math.PI / 2.2;
+
+/** Órbita y distancia de la cámara orbital del generador procedural. */
+export interface OrbitalCamera {
+  rotation: { x: number; y: number };
+  distance: number;
+}
+
+/**
+ * Acota la distancia orbital al rango utilizable.
+ *
+ * Un valor no finito (NaN o ±Infinity, posible cuando un deltaY llega corrupto)
+ * colapsa a la distancia mínima: un resultado determinista y dentro de rango,
+ * nunca un NaN que dejaría la cámara en el origen. Análisis de valores límite
+ * en `src/lib/webgl.test.ts`.
+ */
+export function clampCameraDistance(value: number): number {
+  if (!Number.isFinite(value)) return MIN_CAMERA_DISTANCE;
+  return Math.min(MAX_CAMERA_DISTANCE, Math.max(MIN_CAMERA_DISTANCE, value));
+}
+
+/** Incremento de zoom por notch de rueda (deltaY positivo = alejar). */
+export function zoomFromWheel(camera: OrbitalCamera, deltaY: number): OrbitalCamera {
+  return { ...camera, distance: clampCameraDistance(camera.distance + deltaY * 0.05) };
+}
+
+const ROTATION_STEP = 0.08;
+const ZOOM_STEP = 4;
+
+/**
+ * Traduce una tecla a un movimiento de cámara. Devuelve `null` cuando la tecla
+ * no pertenece al esquema (el componente no llama entonces a preventDefault, así
+ * que Tab y los atajos del navegador siguen funcionando).
+ */
+export function orbitFromKey(camera: OrbitalCamera, key: string): OrbitalCamera | null {
+  const { rotation, distance } = camera;
+  switch (key) {
+    case 'ArrowLeft':
+      return { rotation: { ...rotation, y: rotation.y + ROTATION_STEP }, distance };
+    case 'ArrowRight':
+      return { rotation: { ...rotation, y: rotation.y - ROTATION_STEP }, distance };
+    case 'ArrowUp':
+      return {
+        rotation: { ...rotation, x: Math.min(MAX_CAMERA_PITCH, rotation.x + ROTATION_STEP) },
+        distance,
+      };
+    case 'ArrowDown':
+      return {
+        rotation: { ...rotation, x: Math.max(-MAX_CAMERA_PITCH, rotation.x - ROTATION_STEP) },
+        distance,
+      };
+    case '+':
+    case '=':
+      return { rotation, distance: clampCameraDistance(distance - ZOOM_STEP) };
+    case '-':
+    case '_':
+      return { rotation, distance: clampCameraDistance(distance + ZOOM_STEP) };
+    case 'Home':
+      return { rotation: { x: 0.3, y: 0.5 }, distance: 40 };
+    default:
+      return null;
+  }
+}

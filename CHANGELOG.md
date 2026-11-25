@@ -23,12 +23,16 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
   visitante y log JSON con stack y componentStack para el operador (P4).
 - **`src/lib/webgl.ts`**: sondeo de capacidades WebGL2/WebGL1, detección de
   rasterizadores por software, techo de `devicePixelRatio`,
-  `prefers-reduced-motion` y pausa por `visibilitychange`, en un único módulo
-  compartido y testeable.
+  `prefers-reduced-motion` y pausa por `visibilitychange`, más la cámara
+  orbital pura (`clampCameraDistance`, `zoomFromWheel`, `orbitFromKey`) en un
+  único módulo compartido y testeable sin contexto GL.
 - **`src/vite-env.d.ts`** con la referencia a `vite/client`.
 - **Suite de tests**: Vitest 5.1.1 + Testing Library + jsdom + axe-core y
-  Playwright. 192 tests unitarios/de componente y 28 casos E2E (chromium y
-  móvil) sobre el build de producción.
+  Playwright. **239 tests** unitarios, de componente, de accesibilidad y del
+  servidor (7 ficheros, 48 suites) más **28 casos E2E** (chromium y móvil)
+  sobre el build de producción:
+  `sddAudit` 76 · `webgl` 53 · `server` 38 · `a11y` 29 · `App` 18 ·
+  `SddMaestroView` 17 · `ErrorBoundary` 8.
 - **Herramientas internas** (`scripts/`): `perf-report.mjs` (presupuestos de
   bundle con gzip y brotli, primer paint vs lazy, assets duplicados),
   `check-i18n-parity.mjs` (paridad de claves en los 4 idiomas) y
@@ -63,7 +67,9 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
   `maxOutputTokens` sobre Gemini, mapeo de errores upstream (403/429/504/502),
   cache `immutable` de `/assets` y `no-cache` del HTML, 404 JSON para rutas de
   API desconocidas y `createApp()` reutilizable desde serverless.
-- **Accesibilidad**: `document.documentElement.lang` y `document.title` siguen
+- **Accesibilidad**: un único `<h1>` por página (el de la vista activa; el del
+  shell pasa a ser contexto `sr-only`), `document.documentElement.lang` y
+  `document.title` siguen
   el estado real (WCAG 3.1.1 y 2.4.2), enlace de salto al contenido (2.4.1),
   `type="button"` en los 66 botones, `aria-pressed`/`aria-current` en tabs y
   toggles, nombre accesible en todos los `input[type=range]`, checkboxes reales

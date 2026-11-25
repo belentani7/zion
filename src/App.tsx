@@ -98,7 +98,13 @@ export const App: React.FC = () => {
       />
 
       <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6">
-        <h1 className="sr-only">{t.appTitle}</h1>
+        {/*
+          Un único <h1> por página (WCAG 2.4.6 / outline): el titular visible de
+          la vista activa. JudasExperienceView ya aporta su propio <h1>, así que
+          el del shell se declara como párrafo de contexto accesible y no como
+          segundo <h1> que rompería la jerarquía.
+        */}
+        <p className="sr-only">{t.appTitle}</p>
 
         {/* Each view is guarded: a failure in one section no longer blanks the
             whole workspace (P4 ERROR LEAKAGE). */}
@@ -108,6 +114,7 @@ export const App: React.FC = () => {
               <div
                 role="status"
                 aria-live="polite"
+                data-app-loading="true"
                 className="min-h-[60vh] flex flex-col items-center justify-center gap-3"
               >
                 <Loader2 className="w-6 h-6 animate-spin text-rose-500" aria-hidden="true" />

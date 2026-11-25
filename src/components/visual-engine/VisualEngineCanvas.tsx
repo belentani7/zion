@@ -3,10 +3,13 @@ import * as THREE from 'three';
 import { VisualEngineSettings, PaletteId } from '../../types';
 import {
   WEBGL_UNAVAILABLE_MESSAGE,
+  orbitFromKey,
   prefersReducedMotion,
   probeWebGLSupport,
   resolvePixelRatio,
   subscribeToVisibility,
+  zoomFromWheel,
+  type OrbitalCamera,
 } from '../../lib/webgl';
 
 interface CanvasProps {
@@ -824,6 +827,24 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
     }
   }, [settings.generator, settings.palette, settings.density, settings.wireframe, settings.bloomGlow, settings.particleSize, settings.seed, settings.ambientLight]);
 
+  /** Estado orbital actual, en el formato que consumen los helpers puros. */
+  const readCamera = (): OrbitalCamera => ({
+    rotation: { ...cameraRotation.current },
+    distance: cameraDistance.current,
+  });
+
+  /**
+   * Aplica un estado orbital y, con movimiento reducido, repinta un fotograma:
+   * sin bucle de animación activo, la única forma de ver el cambio es dibujarlo.
+   */
+  const applyCamera = (next: OrbitalCamera): void => {
+    cameraRotation.current = { x: next.rotation.x, y: next.rotation.y };
+    cameraDistance.current = next.distance;
+    if (prefersReducedMotion() && rendererRef.current && sceneRef.current && cameraRef.current) {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    }
+  };
+
   // Animation Loop
   useEffect(() => {
     if (!rendererRef.current) return;
@@ -1027,11 +1048,8 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
   // Camera reset (the button used to set state to itself and do nothing)
   useEffect(() => {
     if (resetToken === 0) return;
-    cameraRotation.current = { x: 0.3, y: 0.5 };
-    cameraDistance.current = 40;
-    if (prefersReducedMotion() && rendererRef.current && sceneRef.current && cameraRef.current) {
-      rendererRef.current.render(sceneRef.current, cameraRef.current);
-    }
+    // 'Home' es el reset canónico: misma órbita y distancia que el montaje.
+    applyCamera(orbitFromKey(readCamera(), 'Home') ?? readCamera());
   }, [resetToken]);
 
   /**
@@ -1049,10 +1067,7 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
 
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
-      cameraDistance.current = Math.max(
-        10,
-        Math.min(90, cameraDistance.current + event.deltaY * 0.05),
-      );
+      applyCamera(zoomFromWheel(readCamera(), event.deltaY));
     };
 
     container.addEventListener('wheel', onWheel, { passive: false });
@@ -1084,50 +1099,10 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
    * pointer-only, so arrow keys rotate, + / - zoom and Home resets.
    */
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    const ROTATION_STEP = 0.08;
-    const ZOOM_STEP = 4;
-    let handled = true;
-
-    switch (event.key) {
-      case 'ArrowLeft':
-        cameraRotation.current.y += ROTATION_STEP;
-        break;
-      case 'ArrowRight':
-        cameraRotation.current.y -= ROTATION_STEP;
-        break;
-      case 'ArrowUp':
-        cameraRotation.current.x = Math.min(
-          Math.PI / 2.2,
-          cameraRotation.current.x + ROTATION_STEP,
-        );
-        break;
-      case 'ArrowDown':
-        cameraRotation.current.x = Math.max(
-          -Math.PI / 2.2,
-          cameraRotation.current.x - ROTATION_STEP,
-        );
-        break;
-      case '+':
-      case '=':
-        cameraDistance.current = Math.max(10, cameraDistance.current - ZOOM_STEP);
-        break;
-      case '-':
-      case '_':
-        cameraDistance.current = Math.min(90, cameraDistance.current + ZOOM_STEP);
-        break;
-      case 'Home':
-        cameraRotation.current = { x: 0.3, y: 0.5 };
-        cameraDistance.current = 40;
-        break;
-      default:
-        handled = false;
-    }
-
-    if (!handled) return;
+    const next = orbitFromKey(readCamera(), event.key);
+    if (!next) return; // Tecla fuera del esquema: Tab y atajos del navegador intactos.
     event.preventDefault();
-    if (prefersReducedMotion() && rendererRef.current && sceneRef.current && cameraRef.current) {
-      rendererRef.current.render(sceneRef.current, cameraRef.current);
-    }
+    applyCamera(next);
   };
 
   if (webglError) {

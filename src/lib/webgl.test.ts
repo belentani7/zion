@@ -1,11 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  MAX_CAMERA_PITCH,
   WEBGL_UNAVAILABLE_MESSAGE,
   prefersReducedMotion,
+  clampCameraDistance,
+  orbitFromKey,
   probeWebGL,
   probeWebGLSupport,
   resolvePixelRatio,
   subscribeToVisibility,
+  zoomFromWheel,
 } from './webgl';
 
 /** Minimal stand-in for a WebGL context, enough for the probe. */
@@ -245,5 +249,89 @@ describe('subscribeToVisibility — render loop pause', () => {
     document.dispatchEvent(new Event('visibilitychange'));
 
     expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('clampCameraDistance / zoomFromWheel — límites de la cámara orbital', () => {
+  const camera = (distance: number) => ({ rotation: { x: 0.3, y: 0.5 }, distance });
+
+  it.each([
+    [9.99, 10],
+    [10, 10],
+    [40, 40],
+    [90, 90],
+    [90.01, 90],
+    // No finito → distancia mínima: determinista y dentro de rango.
+    [Number.NaN, 10],
+    [Number.POSITIVE_INFINITY, 10],
+    [Number.NEGATIVE_INFINITY, 10],
+  ])('acota la distancia %s a %s', (input, expected) => {
+    expect(clampCameraDistance(input)).toBe(expected);
+  });
+
+  it('aleja con deltaY positivo y acerca con deltaY negativo', () => {
+    expect(zoomFromWheel(camera(40), 100).distance).toBe(45);
+    expect(zoomFromWheel(camera(40), -100).distance).toBe(35);
+  });
+
+  it('no atraviesa los topes por mucho que se acumule la rueda', () => {
+    expect(zoomFromWheel(camera(89), 10_000).distance).toBe(90);
+    expect(zoomFromWheel(camera(11), -10_000).distance).toBe(10);
+  });
+
+  it('no muta la cámara recibida', () => {
+    const before = camera(40);
+    zoomFromWheel(before, 100);
+    expect(before.distance).toBe(40);
+  });
+});
+
+describe('orbitFromKey — mapa de teclado (WCAG 2.1.1)', () => {
+  const camera = { rotation: { x: 0.3, y: 0.5 }, distance: 40 };
+
+  it.each([
+    ['ArrowLeft', { rotation: { x: 0.3, y: 0.58 }, distance: 40 }],
+    ['ArrowRight', { rotation: { x: 0.3, y: 0.42 }, distance: 40 }],
+    ['ArrowUp', { rotation: { x: 0.38, y: 0.5 }, distance: 40 }],
+    ['ArrowDown', { rotation: { x: 0.22, y: 0.5 }, distance: 40 }],
+    ['+', { rotation: { x: 0.3, y: 0.5 }, distance: 36 }],
+    ['=', { rotation: { x: 0.3, y: 0.5 }, distance: 36 }],
+    ['-', { rotation: { x: 0.3, y: 0.5 }, distance: 44 }],
+    ['_', { rotation: { x: 0.3, y: 0.5 }, distance: 44 }],
+    ['Home', { rotation: { x: 0.3, y: 0.5 }, distance: 40 }],
+  ])('%s produce %o', (key, expected) => {
+    const result = orbitFromKey(camera, key);
+    expect(result?.rotation.x).toBeCloseTo(expected.rotation.x, 10);
+    expect(result?.rotation.y).toBeCloseTo(expected.rotation.y, 10);
+    expect(result?.distance).toBeCloseTo(expected.distance, 10);
+  });
+
+  it.each(['Tab', 'Enter', 'Escape', 'a', 'PageDown', ''])('ignora %s (devuelve null)', (key) => {
+    expect(orbitFromKey(camera, key)).toBeNull();
+  });
+
+  it('acota el cabeceo para que la cámara no dé la vuelta', () => {
+    let state = { rotation: { x: 1.4, y: 0 }, distance: 40 };
+    for (let step = 0; step < 20; step += 1) {
+      state = orbitFromKey(state, 'ArrowUp') as typeof state;
+    }
+    expect(state.rotation.x).toBeLessThanOrEqual(MAX_CAMERA_PITCH);
+
+    let down = { rotation: { x: -1.4, y: 0 }, distance: 40 };
+    for (let step = 0; step < 20; step += 1) {
+      down = orbitFromKey(down, 'ArrowDown') as typeof down;
+    }
+    expect(down.rotation.x).toBeGreaterThanOrEqual(-MAX_CAMERA_PITCH);
+  });
+
+  it('Home restaura la órbita inicial incluso desde un estado extremo', () => {
+    const result = orbitFromKey({ rotation: { x: -1.2, y: 9.9 }, distance: 88 }, 'Home');
+    expect(result).toEqual({ rotation: { x: 0.3, y: 0.5 }, distance: 40 });
+  });
+
+  it('no muta la cámara recibida', () => {
+    const before = { rotation: { x: 0.3, y: 0.5 }, distance: 40 };
+    orbitFromKey(before, 'ArrowLeft');
+    expect(before).toEqual({ rotation: { x: 0.3, y: 0.5 }, distance: 40 });
   });
 });
