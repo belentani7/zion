@@ -205,12 +205,20 @@ const CRITERIA = [
     severity: 'Alto',
     level: 1,
     check: (ctx) => {
-      const subjects = git(ctx.root, ['log', '--pretty=%s', '-50']).split('\n').filter(Boolean);
+      // --no-merges: en un checkout de pull_request el HEAD es el merge commit
+      // que genera GitHub ("Merge <sha> into <sha>"), cuyo sujeto no es
+      // convencional ni puede serlo. Se juzgan los commits del autor.
+      const subjects = git(ctx.root, ['log', '--no-merges', '--pretty=%s', '-50'])
+        .split('\n')
+        .filter(Boolean);
       if (subjects.length === 0) return { status: 'fail', detail: 'sin commits' };
       const bad = subjects.filter((subject) => !CONVENTIONAL_RE.test(subject));
       return {
         status: bad.length === 0 ? 'pass' : 'fail',
-        detail: bad.length === 0 ? `${subjects.length} commits ok` : `${bad.length} no convencionales: ${bad[0]}`,
+        detail:
+          bad.length === 0
+            ? `${subjects.length} commits del autor ok`
+            : `${bad.length} no convencionales: ${bad[0]}`,
       };
     },
   },

@@ -118,8 +118,12 @@ jobs:
         run: |
           fail=0
           tracked=$(git ls-files)
+          # .env.example es la plantilla documentada y DEBE estar versionada:
+          # el patrón \.env\.[a-z]+$ la capturaba y ponía este job en rojo en
+          # main desde antes de esta rama (ver runs 45200198941 y 45181609763).
+          candidates=$(echo "$tracked" | grep -vE '(^|/)\.env\.example$' || true)
           for pattern in '\.env$' '\.env\.[a-z]+$' '\.pem$' '\.p12$' '\.pfx$' 'id_rsa$' 'id_ed25519$' '\.keystore$' '\.npmrc$' '\.netrc$'; do
-            hits=$(echo "$tracked" | grep -E "$pattern" || true)
+            hits=$(echo "$candidates" | grep -E "$pattern" || true)
             if [ -n "$hits" ]; then
               echo "::error file=.env::Fichero sensible trackeado ($pattern):"
               echo "$hits"
@@ -151,12 +155,14 @@ jobs:
           fi
           exit $fail
 
-      - name: Sin placeholders ni TODO en el código entregado
+      - name: Sin marcadores de trabajo pendiente en el código entregado
         run: |
+          # Se exigen dos puntos tras el marcador: así no saltan falsos positivos
+          # como la clase Tailwind `placeholder-zinc-600` ni la palabra española
+          # "TODO" dentro de un comentario ("exige que TODO contenido...").
           fail=0
           if git ls-files -z -- 'src' 'server.ts' 'api' 'scripts' 'e2e' \
-            | xargs -0 -r grep -nE '(TODO|FIXME|XXX|HACK|placeholder)\b' 2>/dev/null \
-            | grep -vE '\.test\.|placeholder=|sddAuditPlaceholder|aria-placeholder'; then
+            | xargs -0 -r grep -nE '(TODO|FIXME|XXX|HACK):' 2>/dev/null; then
             echo "::error::Marcadores de trabajo pendiente en el código entregado."
             fail=1
           fi
