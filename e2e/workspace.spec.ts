@@ -140,8 +140,12 @@ test.describe('SDD Maestro', () => {
     const donut = page.locator('span:text-is("86%")').first();
     await expect(donut).toBeVisible();
 
-    // E5 ships expanded; its first unchecked item is the target.
-    const box = page.locator('#sdd-stage-E5 input[type="checkbox"]:not(:checked)').first();
+    // E5-5 ships unchecked. El selector anterior (`:not(:checked)`) se
+    // auto-invalidaba: al marcarlo, el locator volvía a resolver y apuntaba al
+    // siguiente desmarcado, así que la aserción comparaba otro elemento.
+    const row = page.locator('#sdd-stage-E5 li').filter({ hasText: 'E5-5' });
+    const box = row.locator('input[type="checkbox"]');
+    await expect(box).not.toBeChecked();
     await box.check();
     await expect(box).toBeChecked();
 
@@ -195,25 +199,55 @@ test.describe('degradación y rendimiento', () => {
     await context.close();
   });
 
-  test('el JS del primer paint queda por debajo del presupuesto', async ({ page }) => {
-    const jsBytes: number[] = [];
-    page.on('response', async (response) => {
-      const url = response.url();
-      if (!url.endsWith('.js')) return;
-      // Only count what the initial document pulls in, not lazy chunks.
-      if (response.request().resourceType() !== 'script') return;
-      const headers = await response.allHeaders();
-      const length = Number(headers['content-length'] ?? 0);
-      if (length > 0) jsBytes.push(length);
+  test('el documento de entrada no arrastra Three.js: code splitting real', async ({
+    request,
+  }) => {
+    const html = await (await request.get('/')).text();
+
+    // Lo que el HTML referencia estáticamente: <script type="module"> + modulepreload.
+    const initial = [
+      ...html.matchAll(/(?:src|href)="(\/assets\/[^"]+\.js)"/g),
+    ].map((match) => match[1]);
+
+    expect(new Set(initial).size).toBeLessThanOrEqual(4);
+    // La garantía arquitectónica: Three.js (537 kB) no forma parte de la entrada.
+    expect(initial.join(' ')).not.toContain('vendor-three');
+
+    let bytes = 0;
+    for (const path of new Set(initial)) {
+      const response = await request.get(path);
+      expect(response.status()).toBe(200);
+      const header = (await response.headersArray()).find(
+        (entry) => entry.name.toLowerCase() === 'content-length',
+      );
+      bytes += Number(header?.value ?? 0);
+    }
+
+    // 278 kB sin comprimir medidos (81 kB gzip); el presupuesto de
+    // scripts/perf-report.mjs es 120 kB gzip sobre el mismo conjunto.
+    expect(bytes).toBeLessThan(300_000);
+  });
+
+  test('la vista 3D carga su chunk pesado bajo demanda, no en la entrada', async ({
+    page,
+    request,
+  }) => {
+    const html = await (await request.get('/')).text();
+    expect(html).not.toContain('vendor-three');
+
+    // Al abrir la pestaña por defecto (Judas OMEGA) sí llega el vendor 3D: es
+    // carga diferida real, no parte del documento.
+    const downloaded: string[] = [];
+    page.on('request', (req) => {
+      if (req.resourceType() === 'script' && req.url().includes('/assets/')) {
+        downloaded.push(req.url());
+      }
     });
 
     await page.goto('/', { waitUntil: 'load' });
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-app-loading]')).toHaveCount(0, { timeout: 30_000 });
 
-    // 120 kB gzip budget from scripts/perf-report.mjs; the transfer size here
-    // is whatever the server sends, so the assertion is deliberately generous.
-    const transferred = jsBytes.reduce((total, size) => total + size, 0);
-    expect(transferred).toBeLessThan(900_000);
+    expect(downloaded.some((url) => url.includes('vendor-three'))).toBe(true);
   });
 });
 
