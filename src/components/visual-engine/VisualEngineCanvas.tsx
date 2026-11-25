@@ -1,12 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { VisualEngineSettings, PaletteId } from '../../types';
+import {
+  WEBGL_UNAVAILABLE_MESSAGE,
+  prefersReducedMotion,
+  probeWebGLSupport,
+  resolvePixelRatio,
+  subscribeToVisibility,
+} from '../../lib/webgl';
 
 interface CanvasProps {
   settings: VisualEngineSettings;
   onFpsUpdate?: (fps: number) => void;
   onStatsUpdate?: (stats: { triangles: number; points: number }) => void;
   exportTrigger?: number;
+  /** Increment to restore the default orbital camera (see `useEffect` below). */
+  resetToken?: number;
 }
 
 const PALETTE_COLORS: Record<PaletteId, number[]> = {
@@ -23,6 +32,7 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
   onFpsUpdate,
   onStatsUpdate,
   exportTrigger,
+  resetToken = 0,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -30,6 +40,10 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const activeObjectsRef = useRef<THREE.Object3D[]>([]);
   const animFrameRef = useRef<number | null>(null);
+  /** True while the tab is hidden: the rAF loop stops scheduling frames. */
+  const pausedRef = useRef(false);
+  /** Capability-absent state: rendered as a text fallback instead of a canvas. */
+  const [webglError, setWebglError] = useState<string | null>(null);
 
   // Interaction state
   const isDraggingRef = useRef(false);
@@ -45,6 +59,17 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
   // Setup Three.js scene
   useEffect(() => {
     if (!containerRef.current) return;
+
+    // Probe before Three.js tries to create its own context: without this the
+    // constructor throws "Error creating WebGL context" and, with no error
+    // boundary above, takes the whole workspace down.
+    const probe = probeWebGLSupport();
+    if (!probe.supported) {
+      setWebglError(probe.reason ?? WEBGL_UNAVAILABLE_MESSAGE);
+      return;
+    }
+    setWebglError(null);
+
     const container = containerRef.current;
     const width = container.clientWidth || 800;
     const height = container.clientHeight || 500;
@@ -65,7 +90,9 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
       powerPreference: 'high-performance',
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Software rasterisers (SwiftShader, llvmpipe, Mesa) render at 1x: at 2x
+    // they miss the 60 fps budget by a wide margin.
+    renderer.setPixelRatio(resolvePixelRatio(probe.isSoftwareRenderer));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     rendererRef.current = renderer;
@@ -799,11 +826,10 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
 
   // Animation Loop
   useEffect(() => {
+    if (!rendererRef.current) return;
     let animTime = 0;
 
-    const animate = (timestamp: number) => {
-      animFrameRef.current = requestAnimationFrame(animate);
-
+    const step = (timestamp: number) => {
       // FPS calculation
       frameCount.current++;
       if (timestamp - lastFpsTime.current >= 500) {
@@ -961,12 +987,77 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
       }
     };
 
-    animFrameRef.current = requestAnimationFrame(animate);
+    const animate = (timestamp: number) => {
+      if (pausedRef.current) {
+        animFrameRef.current = null;
+        return;
+      }
+      animFrameRef.current = requestAnimationFrame(animate);
+      step(timestamp);
+    };
+
+    if (prefersReducedMotion()) {
+      // WCAG 2.1 AA (2.3.3 Animation from Interactions): with reduced motion
+      // the loop never starts. One static frame is drawn so the scene is still
+      // visible, and every user-driven change repaints through this effect.
+      step(performance.now());
+    } else {
+      pausedRef.current =
+        typeof document !== 'undefined' && document.visibilityState === 'hidden';
+      animFrameRef.current = requestAnimationFrame(animate);
+    }
+
+    // Stop burning GPU while the tab is in the background, resume on return.
+    const unsubscribeVisibility = subscribeToVisibility((hidden) => {
+      pausedRef.current = hidden;
+      if (hidden) return;
+      if (prefersReducedMotion() || animFrameRef.current !== null) return;
+      frameCount.current = 0;
+      lastFpsTime.current = performance.now();
+      animFrameRef.current = requestAnimationFrame(animate);
+    });
 
     return () => {
+      unsubscribeVisibility();
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
     };
   }, [settings.speed, settings.rotationSpeed, settings.generator]);
+
+  // Camera reset (the button used to set state to itself and do nothing)
+  useEffect(() => {
+    if (resetToken === 0) return;
+    cameraRotation.current = { x: 0.3, y: 0.5 };
+    cameraDistance.current = 40;
+    if (prefersReducedMotion() && rendererRef.current && sceneRef.current && cameraRef.current) {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    }
+  }, [resetToken]);
+
+  /**
+   * Wheel zoom through a native, non-passive listener.
+   *
+   * React attaches `wheel` on the root as a passive listener, so calling
+   * `preventDefault()` inside an `onWheel` prop is ignored by the browser and
+   * logs "Unable to preventDefault inside passive event listener invocation"
+   * on every notch — the page scrolled while the user zoomed. Registering the
+   * listener on the element with `{ passive: false }` is the documented fix.
+   */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || webglError) return;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      cameraDistance.current = Math.max(
+        10,
+        Math.min(90, cameraDistance.current + event.deltaY * 0.05),
+      );
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => container.removeEventListener('wheel', onWheel);
+  }, [webglError]);
 
   // Mouse & Touch controls for orbital interaction
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -988,20 +1079,84 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
     isDraggingRef.current = false;
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    cameraDistance.current = Math.max(10, Math.min(90, cameraDistance.current + e.deltaY * 0.05));
+  /**
+   * Keyboard orbit (WCAG 2.1.1 Keyboard): the drag-orbit interaction is
+   * pointer-only, so arrow keys rotate, + / - zoom and Home resets.
+   */
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const ROTATION_STEP = 0.08;
+    const ZOOM_STEP = 4;
+    let handled = true;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        cameraRotation.current.y += ROTATION_STEP;
+        break;
+      case 'ArrowRight':
+        cameraRotation.current.y -= ROTATION_STEP;
+        break;
+      case 'ArrowUp':
+        cameraRotation.current.x = Math.min(
+          Math.PI / 2.2,
+          cameraRotation.current.x + ROTATION_STEP,
+        );
+        break;
+      case 'ArrowDown':
+        cameraRotation.current.x = Math.max(
+          -Math.PI / 2.2,
+          cameraRotation.current.x - ROTATION_STEP,
+        );
+        break;
+      case '+':
+      case '=':
+        cameraDistance.current = Math.max(10, cameraDistance.current - ZOOM_STEP);
+        break;
+      case '-':
+      case '_':
+        cameraDistance.current = Math.min(90, cameraDistance.current + ZOOM_STEP);
+        break;
+      case 'Home':
+        cameraRotation.current = { x: 0.3, y: 0.5 };
+        cameraDistance.current = 40;
+        break;
+      default:
+        handled = false;
+    }
+
+    if (!handled) return;
+    event.preventDefault();
+    if (prefersReducedMotion() && rendererRef.current && sceneRef.current && cameraRef.current) {
+      rendererRef.current.render(sceneRef.current, cameraRef.current);
+    }
   };
+
+  if (webglError) {
+    return (
+      <div
+        role="status"
+        className="w-full h-full flex flex-col items-center justify-center gap-3 bg-zinc-950 p-6 text-center"
+      >
+        <p className="text-sm font-mono text-indigo-300">{webglError}</p>
+        <p className="text-[11px] text-zinc-500 max-w-sm leading-relaxed">
+          El generador procedural necesita un contexto WebGL. Los parámetros siguen disponibles en
+          el panel de control; la escena se renderizará en cuanto el navegador exponga WebGL.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
       ref={containerRef}
+      role="img"
+      tabIndex={0}
+      aria-label={`Escena 3D procedural: generador ${settings.generator}, paleta ${settings.palette}`}
+      onKeyDown={handleKeyDown}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onWheel={handleWheel}
-      className="w-full h-full cursor-grab active:cursor-grabbing relative overflow-hidden select-none"
+      className="w-full h-full cursor-grab active:cursor-grabbing relative overflow-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
     />
   );
 };

@@ -1,24 +1,31 @@
 import React, { useState, useMemo } from 'react';
 import { ChecklistCriterion, Language } from '../../types';
-import { translations } from '../../locales/i18n';
-import { 
-  CheckCircle, 
-  CheckCircle2, 
-  AlertTriangle, 
-  ShieldAlert, 
-  Filter, 
-  Download, 
-  RotateCcw, 
+import { translations, type Translation } from '../../locales/i18n';
+import {
+  CheckCircle,
+  AlertTriangle,
+  Download,
+  RotateCcw,
   CheckCheck,
   Search,
-  ExternalLink,
   Award,
-  Layers
 } from 'lucide-react';
 
 interface Props {
   lang: Language;
 }
+
+/**
+ * Severity filter: the values are the data constants stored in CRITERIA_DATA
+ * ('Crítico' | 'Alto' | 'Medio') and the labels come from i18n, so the toolbar
+ * stops showing Spanish words in the English, Portuguese and Catalan UIs.
+ */
+const SEVERITY_FILTERS: { value: string; label: (t: Translation) => string }[] = [
+  { value: 'all', label: (t) => t.filterAll },
+  { value: 'Crítico', label: (t) => t.filterCritical },
+  { value: 'Alto', label: (t) => t.filterHigh },
+  { value: 'Medio', label: (t) => t.filterMedium },
+];
 
 const CRITERIA_DATA: ChecklistCriterion[] = [
   { id: 1, category: 'Repo & Git', name: 'origin remoto → GitHub belentani7/<repo>', verification: 'git remote -v', severity: 'Crítico', level: 0, completed: true },
@@ -152,6 +159,7 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleSimulatePassAll}
             className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition-all"
           >
@@ -159,6 +167,7 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
             <span>{t.simulatePassAll}</span>
           </button>
           <button
+            type="button"
             onClick={handleReset}
             className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-medium transition-all"
           >
@@ -166,6 +175,7 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
             <span>{t.resetChecklist}</span>
           </button>
           <button
+            type="button"
             onClick={handleExport}
             className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-indigo-600/30"
           >
@@ -268,6 +278,8 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
           {/* Level Filter */}
           <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
             <button
+              type="button"
+              aria-pressed={selectedLevel === 'all'}
               onClick={() => setSelectedLevel('all')}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
                 selectedLevel === 'all' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -276,6 +288,8 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
               {t.filterAll}
             </button>
             <button
+              type="button"
+              aria-pressed={selectedLevel === 0}
               onClick={() => setSelectedLevel(0)}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
                 selectedLevel === 0 ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -284,6 +298,8 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
               Nivel 0
             </button>
             <button
+              type="button"
+              aria-pressed={selectedLevel === 1}
               onClick={() => setSelectedLevel(1)}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
                 selectedLevel === 1 ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -292,6 +308,8 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
               Nivel 1
             </button>
             <button
+              type="button"
+              aria-pressed={selectedLevel === 2}
               onClick={() => setSelectedLevel(2)}
               className={`px-3 py-1 rounded-lg font-medium transition-all ${
                 selectedLevel === 2 ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -303,17 +321,19 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
 
           {/* Severity Filter */}
           <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
-            {['all', 'Crítico', 'Alto', 'Medio'].map((sev) => (
+            {SEVERITY_FILTERS.map(({ value, label }) => (
               <button
-                key={sev}
-                onClick={() => setSelectedSeverity(sev)}
+                type="button"
+                key={value}
+                aria-pressed={selectedSeverity === value}
+                onClick={() => setSelectedSeverity(value)}
                 className={`px-2.5 py-1 rounded-lg font-medium transition-all ${
-                  selectedSeverity === sev
+                  selectedSeverity === value
                     ? 'bg-zinc-800 text-white'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                {sev === 'all' ? t.filterAll : sev}
+                {label(t)}
               </button>
             ))}
           </div>
@@ -324,6 +344,7 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
           <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             type="text"
+            aria-label={`${t.checklistTitle} — ${t.filterAll}`}
             placeholder="Filtrar criterios..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -336,15 +357,18 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
       <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
+            <caption className="sr-only">
+              {t.checklistTitle} — {t.checklistSubtitle}
+            </caption>
             <thead>
               <tr className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-400 font-semibold uppercase tracking-wider">
-                <th className="py-3 px-4 w-12 text-center">#</th>
-                <th className="py-3 px-4 w-12 text-center">Estado</th>
-                <th className="py-3 px-4 w-32">Categoría</th>
-                <th className="py-3 px-4">Criterio de Calidad</th>
-                <th className="py-3 px-4">Método de Verificación</th>
-                <th className="py-3 px-4 w-24 text-center">Severidad</th>
-                <th className="py-3 px-4 w-20 text-center">Nivel</th>
+                <th scope="col" className="py-3 px-4 w-12 text-center">#</th>
+                <th scope="col" className="py-3 px-4 w-12 text-center">Estado</th>
+                <th scope="col" className="py-3 px-4 w-32">Categoría</th>
+                <th scope="col" className="py-3 px-4">Criterio de Calidad</th>
+                <th scope="col" className="py-3 px-4">Método de Verificación</th>
+                <th scope="col" className="py-3 px-4 w-24 text-center">Severidad</th>
+                <th scope="col" className="py-3 px-4 w-20 text-center">Nivel</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60">
@@ -360,15 +384,23 @@ ${criteria.map(c => `| ${c.id} | ${c.completed ? '✅' : '❌'} | ${c.category} 
                     {c.id}
                   </td>
                   <td className="py-3 px-4 text-center">
-                    <div
-                      className={`w-5 h-5 mx-auto rounded-md flex items-center justify-center transition-all ${
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={c.completed}
+                      aria-label={`${c.id} · ${c.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        toggleCriterion(c.id);
+                      }}
+                      className={`w-5 h-5 mx-auto rounded-md flex items-center justify-center transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                         c.completed
                           ? 'bg-emerald-500 text-black'
                           : 'border border-zinc-700 bg-zinc-900'
                       }`}
                     >
                       {c.completed && <CheckCheck className="w-3.5 h-3.5 stroke-[3]" />}
-                    </div>
+                    </button>
                   </td>
                   <td className="py-3 px-4 font-semibold text-zinc-300">
                     {c.category}

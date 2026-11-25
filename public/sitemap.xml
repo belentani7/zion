@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  belentani-workspace · sitemap
+  El workspace es una SPA de una sola ruta (las 6 vistas son pestañas internas,
+  no URL propias), así que el sitemap declara la raíz y el documento canónico.
+  Se mantiene a mano porque no hay rutas dinámicas que enumerar.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://belentani.es/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

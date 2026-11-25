@@ -556,6 +556,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
 
         <div className="flex flex-wrap items-center gap-2">
           <button
+            type="button"
             onClick={resetAll}
             className="flex items-center gap-1.5 px-3 py-2 bg-zinc-950 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0"
           >
@@ -563,6 +564,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
             <span>{t.omegaResetTarget}</span>
           </button>
           <button
+            type="button"
             onClick={handleCopyReport}
             className="flex items-center gap-1.5 px-3 py-2 bg-zinc-950 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0"
           >
@@ -570,6 +572,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
             <span>{copiedReport ? 'Copiado' : 'Copiar Runbook'}</span>
           </button>
           <button
+            type="button"
             onClick={handleExportBlueprint}
             className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
           >
@@ -591,6 +594,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
             </p>
           </div>
           <button
+            type="button"
             onClick={runDiagnosticMatrix}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0"
           >
@@ -708,6 +712,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
       {/* Sub-view Segmented Bar */}
       <div className="flex flex-wrap items-center gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-xl w-fit max-w-full overflow-x-auto">
         <button
+          type="button"
           onClick={() => setSubView('matrix')}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
             subView === 'matrix' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -716,6 +721,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
           01. Matriz de 5 Capas
         </button>
         <button
+          type="button"
           onClick={() => setSubView('axioms')}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
             subView === 'axioms' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -724,6 +730,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
           02. Axiomas y Buenas Prácticas
         </button>
         <button
+          type="button"
           onClick={() => setSubView('fix_protocol')}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
             subView === 'fix_protocol' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -732,6 +739,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
           03. Protocolo Fix-It-All y RCA
         </button>
         <button
+          type="button"
           onClick={() => setSubView('frontier')}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
             subView === 'frontier' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -751,6 +759,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
               const statusInfo = getStatusLabel(layer.status);
               return (
                 <button
+                  type="button"
                   key={layer.id}
                   onClick={() => setSelectedLayerId(layer.id)}
                   className={`w-full text-left p-4 transition-colors flex items-start justify-between gap-3 ${
@@ -799,6 +808,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
                 <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-800 p-1 rounded-lg">
                   {(['nominal', 'degraded', 'remediated'] as OmegaCheckStatus[]).map((st) => (
                     <button
+                      type="button"
                       key={st}
                       onClick={() => updateLayerStatus(selectedLayer.id, st)}
                       className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap shrink-0 ${
@@ -878,6 +888,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
             <div className="divide-y divide-zinc-800">
               {axioms.map((ax) => (
                 <button
+                  type="button"
                   key={ax.id}
                   onClick={() => toggleAxiom(ax.id)}
                   className="w-full text-left py-3.5 flex items-start gap-3 hover:bg-zinc-800/30 px-2 rounded-lg transition-colors"
@@ -962,6 +973,7 @@ ${fiveWhys.map((w, i) => `${i + 1}. ${w}`).join('\n')}
                 <div key={step.step} className="py-4 space-y-2.5">
                   <div className="flex items-start justify-between gap-3">
                     <button
+                      type="button"
                       onClick={() => toggleFixStep(step.step)}
                       className="flex items-start gap-3 text-left"
                     >

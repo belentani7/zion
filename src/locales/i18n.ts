@@ -1,4 +1,15 @@
-import { Language } from '../types';
+import { Language, NavTabId } from '../types';
+
+/**
+ * Locale catalogue in the fixed order declared by the protocol
+ * (PROTOCOLO_COMPLETO_BELENTANI_VISUAL_ENGINE.md §11: PT > ES > EN > CA).
+ */
+export const LANGUAGES: { id: Language; label: string }[] = [
+  { id: 'pt', label: 'Português' },
+  { id: 'es', label: 'Español' },
+  { id: 'en', label: 'English' },
+  { id: 'ca', label: 'Català' },
+];
 
 export const translations = {
   pt: {
@@ -18,7 +29,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — Qualidade Videojogo AAA r185+',
+    engineSubtitle: 'Experiências visuais procedurais Three.js r174 — WebGL2, EffectComposer e Bloom',
     presetLabel: 'Gerador Procedural',
     paletteLabel: 'Paleta Cromática',
     controlsTitle: 'Parâmetros em Tempo Real',
@@ -27,6 +38,7 @@ export const translations = {
     speed: 'Velocidade de Simulação',
     density: 'Densidade / Partículas',
     rotationSpeed: 'Rotação Orbital',
+    particleSize: 'Tamanho de Partícula / Geometria',
     seed: 'Semente Procedural',
     resetCamera: 'Resetar Câmara',
     takeSnapshot: 'Capturar Cena 4K',
@@ -88,6 +100,11 @@ export const translations = {
     ciAuditTab: 'Auditor de Higiene CI',
     viewScript: 'Ver Código',
     copyCommand: 'Copiar Comando',
+    copiedLabel: 'Copiado',
+    errorTitle: 'Esta secção falhou',
+    errorDescription: 'O módulo encontrou um erro inesperado. O resto do workspace continua operativo.',
+    errorRetry: 'Tentar novamente',
+    skipToContent: 'Saltar para o conteúdo principal',
   },
   es: {
     appTitle: 'Belentani Workspace & Visual Engine',
@@ -106,7 +123,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — Calidad Videojuego AAA r185+',
+    engineSubtitle: 'Experiencias visuales procedurales Three.js r174 — WebGL2, EffectComposer y Bloom',
     presetLabel: 'Generador Procedural',
     paletteLabel: 'Paleta Cromática',
     controlsTitle: 'Parámetros en Tiempo Real',
@@ -115,6 +132,7 @@ export const translations = {
     speed: 'Velocidad de Simulación',
     density: 'Densidad / Partículas',
     rotationSpeed: 'Rotación Orbital',
+    particleSize: 'Tamaño de Partícula / Geometría',
     seed: 'Semilla Procedural',
     resetCamera: 'Resetear Cámara',
     takeSnapshot: 'Capturar Escena 4K',
@@ -176,6 +194,11 @@ export const translations = {
     ciAuditTab: 'Auditor de Higiene CI',
     viewScript: 'Ver Código',
     copyCommand: 'Copiar Comando',
+    copiedLabel: 'Copiado',
+    errorTitle: 'Esta sección ha fallado',
+    errorDescription: 'El módulo ha encontrado un error inesperado. El resto del workspace sigue operativo.',
+    errorRetry: 'Reintentar',
+    skipToContent: 'Saltar al contenido principal',
   },
   en: {
     appTitle: 'Belentani Workspace & Visual Engine',
@@ -194,7 +217,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — AAA Game Quality r185+',
+    engineSubtitle: 'Three.js r174 procedural visual experiences — WebGL2, EffectComposer and Bloom',
     presetLabel: 'Procedural Generator',
     paletteLabel: 'Chromatic Palette',
     controlsTitle: 'Real-Time Parameters',
@@ -203,6 +226,7 @@ export const translations = {
     speed: 'Simulation Speed',
     density: 'Density / Particles',
     rotationSpeed: 'Orbital Rotation',
+    particleSize: 'Particle / Geometry Size',
     seed: 'Procedural Seed',
     resetCamera: 'Reset Camera',
     takeSnapshot: 'Capture 4K Snapshot',
@@ -264,6 +288,11 @@ export const translations = {
     ciAuditTab: 'CI Hygiene Auditor',
     viewScript: 'View Code',
     copyCommand: 'Copy Command',
+    copiedLabel: 'Copied',
+    errorTitle: 'This section failed',
+    errorDescription: 'The module hit an unexpected error. The rest of the workspace keeps working.',
+    errorRetry: 'Try again',
+    skipToContent: 'Skip to main content',
   },
   ca: {
     appTitle: 'Belentani Workspace & Visual Engine',
@@ -282,7 +311,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — Qualitat Videojoc AAA r185+',
+    engineSubtitle: 'Experiències visuals procedurals Three.js r174 — WebGL2, EffectComposer i Bloom',
     presetLabel: 'Generador Procedural',
     paletteLabel: 'Paleta Cromàtica',
     controlsTitle: 'Paràmetres en Temps Real',
@@ -291,6 +320,7 @@ export const translations = {
     speed: 'Velocitat de Simulació',
     density: 'Densitat / Partícules',
     rotationSpeed: 'Rotació Orbital',
+    particleSize: 'Mida de Partícula / Geometria',
     seed: 'Llavor Procedural',
     resetCamera: 'Reiniciar Càmera',
     takeSnapshot: 'Capturar Escena 4K',
@@ -352,5 +382,29 @@ export const translations = {
     ciAuditTab: 'Auditor d\'Higiene CI',
     viewScript: 'Veure Codi',
     copyCommand: 'Copiar Ordre',
+    copiedLabel: 'Copiat',
+    errorTitle: 'Aquesta secció ha fallat',
+    errorDescription: 'El mòdul ha trobat un error inesperat. La resta del workspace continua operatiu.',
+    errorRetry: 'Tornar-ho a provar',
+    skipToContent: 'Salta al contingut principal',
   }
+};
+
+/** One locale bundle. Every language must expose exactly this key set. */
+export type Translation = (typeof translations)['es'];
+
+/** Every localisable language, derived from the catalogue itself. */
+export type SupportedLanguage = keyof typeof translations;
+
+/**
+ * Tab labels as functions of the active bundle: Navigation renders them and App
+ * composes `document.title` with them, so the two can never drift apart.
+ */
+export const NAV_TAB_LABELS: Record<NavTabId, (t: Translation) => string> = {
+  judas_omega: (t) => t.navJudasOmega,
+  omega_prime: (t) => t.navOmegaPrime,
+  visual_engine: (t) => t.navVisualEngine,
+  sdd_maestro: (t) => t.navSddMaestro,
+  production_checklist: (t) => t.navProductionChecklist,
+  workspace_hub: (t) => t.navWorkspaceHub,
 };

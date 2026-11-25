@@ -13,7 +13,102 @@ concurrency:
   group: audit-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: '22'
+
 jobs:
+  quality:
+    name: Build · Lint · Tests · Presupuestos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Typecheck (tsc --noEmit sobre src, server, api, e2e y configs)
+        run: npm run typecheck
+
+      - name: Build de producción
+        run: npm run build
+
+      - name: Tests unitarios y de componentes
+        run: npm test
+
+      - name: Cobertura
+        run: npm run test:coverage
+
+      - name: Presupuestos de rendimiento
+        run: npm run perf
+
+      - name: Paridad i18n (pt/es/en/ca)
+        run: npm run check:i18n
+
+      - name: Auditoría de producción (30 criterios)
+        run: npm run audit
+
+      - name: Resumen de métricas
+        if: always()
+        run: |
+          {
+            echo '## Métricas del build'
+            echo '```'
+            node scripts/perf-report.mjs --no-fail || true
+            echo '```'
+            echo '## Auditoría de producción'
+            echo '```'
+            node scripts/audit-production-readiness.mjs --quiet || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Artefactos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-and-coverage
+          path: |
+            dist/
+            coverage/
+          if-no-files-found: warn
+          retention-days: 7
+
+  e2e:
+    name: E2E (Playwright · Chromium)
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Navegadores de Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Suite E2E sobre el build de producción
+        run: npx playwright test --project=chromium
+
+      - name: Informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 7
+
   hygiene:
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +131,14 @@ jobs:
           fi
           exit $fail
 
+      - name: Sin artefactos de build versionados
+        run: |
+          if git ls-files | grep -qE '^dist/'; then
+            echo "::error::dist/ está versionado: es salida de build, no fuente."
+            exit 1
+          fi
+          echo "dist/ fuera del registro (correcto)."
+
       - name: Sin patrones de credenciales
         run: |
           fail=0
@@ -44,6 +147,17 @@ jobs:
                 '(sk-ant-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{30,}|gh[pousr]_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|GOCSPX-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)' \
             2>/dev/null; then
             echo "::error::Se han encontrado patrones de credenciales. Revisa y rota lo que corresponda."
+            fail=1
+          fi
+          exit $fail
+
+      - name: Sin placeholders ni TODO en el código entregado
+        run: |
+          fail=0
+          if git ls-files -z -- 'src' 'server.ts' 'api' 'scripts' 'e2e' \
+            | xargs -0 -r grep -nE '(TODO|FIXME|XXX|HACK|placeholder)\b' 2>/dev/null \
+            | grep -vE '\.test\.|placeholder=|sddAuditPlaceholder|aria-placeholder'; then
+            echo "::error::Marcadores de trabajo pendiente en el código entregado."
             fail=1
           fi
           exit $fail

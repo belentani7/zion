@@ -18,6 +18,12 @@ import {
   VIAJE3D_NODES,
 } from './judasData';
 import {
+  WEBGL_UNAVAILABLE_MESSAGE,
+  probeWebGL,
+  resolvePixelRatio,
+  subscribeToVisibility,
+} from '../../lib/webgl';
+import {
   Camera,
   ChevronDown,
   ChevronUp,
@@ -430,26 +436,20 @@ export const OmegaCosmosCanvas: React.FC<OmegaCosmosCanvasProps> = ({
     const canvas = canvasRef.current;
     if (!container || !canvas) return;
 
-    let glTest: WebGLRenderingContext | WebGL2RenderingContext | null = null;
-    try {
-      glTest = canvas.getContext('webgl2') || canvas.getContext('webgl');
-    } catch {
-      glTest = null;
-    }
-
-    if (!glTest) {
-      setWebglError('WebGL no está disponible en este entorno.');
+    // Capability probe lives in src/lib/webgl.ts so both Three.js canvases
+    // share one definition of "no WebGL" and "software rasteriser".
+    const probe = probeWebGL(canvas);
+    if (!probe.supported) {
+      setWebglError(probe.reason ?? WEBGL_UNAVAILABLE_MESSAGE);
       return;
     }
 
-    const debugExt = glTest.getExtension('WEBGL_debug_renderer_info');
-    const rendererInfo = debugExt ? String(glTest.getParameter(debugExt.UNMASKED_RENDERER_WEBGL) || '') : '';
-    const isSoftwareGl = /SwiftShader|llvmpipe|Software|Mesa/i.test(rendererInfo);
+    const isSoftwareGl = probe.isSoftwareRenderer;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || 620;
-    const dpr = isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 1.75);
+    const dpr = resolvePixelRatio(isSoftwareGl);
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -1313,6 +1313,7 @@ export const OmegaCosmosCanvas: React.FC<OmegaCosmosCanvasProps> = ({
     let rafId = 0;
     let pollId = 0;
     let disposed = false;
+    let paused = typeof document !== 'undefined' && document.visibilityState === 'hidden';
 
     const afterDraw = (cb: () => void) => {
       if (disposed) return;
@@ -1346,7 +1347,7 @@ export const OmegaCosmosCanvas: React.FC<OmegaCosmosCanvasProps> = ({
     };
 
     const renderFrame = () => {
-      if (disposed) return;
+      if (disposed || paused) return;
 
       const delta = Math.min(0.05, clock.getDelta());
       const t = clock.elapsedTime;
@@ -1627,8 +1628,27 @@ export const OmegaCosmosCanvas: React.FC<OmegaCosmosCanvasProps> = ({
 
     afterDraw(renderFrame);
 
+    // Pause the render loop while the tab is hidden: a WebGL cosmos left
+    // running in the background is pure wasted GPU, memory bandwidth and
+    // battery. On return the accumulated clock gap is dropped so the odyssey
+    // does not jump forward.
+    const unsubscribeVisibility = subscribeToVisibility((hidden) => {
+      if (disposed) return;
+      paused = hidden;
+      if (hidden) {
+        window.cancelAnimationFrame(rafId);
+        window.clearTimeout(pollId);
+        rafId = 0;
+        pollId = 0;
+        return;
+      }
+      clock.getDelta();
+      afterDraw(renderFrame);
+    });
+
     return () => {
       disposed = true;
+      unsubscribeVisibility();
       window.cancelAnimationFrame(rafId);
       window.clearTimeout(pollId);
       ro.disconnect();
@@ -1665,12 +1685,20 @@ export const OmegaCosmosCanvas: React.FC<OmegaCosmosCanvasProps> = ({
       className="relative w-full h-[600px] lg:h-[700px] rounded-2xl overflow-hidden border border-rose-500/30 bg-black select-none"
     >
       {webglError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black">
-          <Sparkles className="w-8 h-8 text-rose-500 mb-3" />
+        <div
+          role="status"
+          className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-black"
+        >
+          <Sparkles className="w-8 h-8 text-rose-500 mb-3" aria-hidden="true" />
           <p className="text-sm font-mono text-rose-300">{webglError}</p>
         </div>
       ) : (
-        <canvas ref={canvasRef} className="w-full h-full block outline-none" />
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label="Cosmos Omega: galaxia espiral 3D de 44 nodos con el planeta Zion, la Pentada de diamantes y la grieta kintsugi, reactiva al audio a 432 Hz"
+          className="w-full h-full block outline-none"
+        />
       )}
 
       {/* INITIAL BLACK & SILENCE GENESIS OVERLAY */}

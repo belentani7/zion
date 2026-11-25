@@ -5,7 +5,8 @@
 
 [![Status: Transmuted](https://img.shields.io/badge/COSMOS-OMEGA--PRIME-d4af37.svg?style=for-the-badge)](#)
 [![Frecuencia: 432 Hz](https://img.shields.io/badge/SOLFEGGIO-432_Hz-ff0055.svg?style=for-the-badge)](#)
-[![TypeScript 5.7](https://img.shields.io/badge/CODE-TYPESCRIPT_5.7-3178c6.svg?style=for-the-badge)](#)
+[![TypeScript 7](https://img.shields.io/badge/CODE-TYPESCRIPT_7-3178c6.svg?style=for-the-badge)](#)
+[![Tests: 192 unit + 28 e2e](https://img.shields.io/badge/TESTS-192_UNIT_·_28_E2E-16a34a.svg?style=for-the-badge)](#5-calidad-verificable)
 [![Three.js](https://img.shields.io/badge/ENGINE-THREE.JS_WEBGL-000000.svg?style=for-the-badge)](#)
 
 ---
@@ -53,18 +54,22 @@ A su alrededor orbitan cinco diamantes de talla brillante y refracción IOR 2.41
 
 ## 🚀 4. Despliegue y Ejecución Local
 
+### Requisitos
+
+Node.js **22.12 o superior** (el proyecto se desarrolla sobre Node 22.22) y npm 10.
+
 ```powershell
 # Clonar y entrar al santuario
 git clone https://github.com/belentani7/zion.git
 cd zion
 
-# Instalar dependencias puras
-npm install
+# Instalar dependencias (lockfile npm; bun.lock ya no forma parte del repo)
+npm ci
 
-# Compilación y verificación estricta de tipos
+# Compilación y verificación estricta de tipos (tsc && vite build)
 npm run build
 
-# Despertar el servidor de desarrollo en el puerto 3000
+# Despertar el servidor de desarrollo en el puerto 3000 (Express + middleware Vite)
 npm run dev
 ```
 
@@ -72,6 +77,95 @@ Abre en tu navegador:
 ```
 http://localhost:3000
 ```
+
+Para servir el build de producción tal y como lo hace el deploy:
+
+```bash
+npm run build
+NODE_ENV=production npm start     # Express sirve dist/ + /api/*
+# o, sólo el front estático:
+npm run preview                   # vite preview en 0.0.0.0:3000
+```
+
+### Variables de entorno
+
+Copia `.env.example` a `.env` (nunca versiones `.env`: está en `.gitignore` y el
+auditor lo comprueba).
+
+| Variable | Obligatoria | Por defecto | Descripción |
+| --- | --- | --- | --- |
+| `PORT` | no | `3000` | Puerto del kernel Express. |
+| `NODE_ENV` | no | `development` | Con `production` se sirve `dist/` estático y se activa HSTS sobre TLS. |
+| `GEMINI_API_KEY` | **sí** para `/api/lore` | — | Clave de la Gemini API. Sin ella `/api/lore` responde `503 MISSING_API_KEY` y `/api/health` informa `aiConfigured: false`; el resto del workspace funciona igual. |
+| `GEMINI_MODEL` | no | `gemini-4-hydrogen` | Modelo del oráculo de lore. |
+| `GEMINI_TIMEOUT_MS` | no | `20000` | Deadline de la llamada upstream (timeout HTTP + `AbortSignal`). |
+| `GEMINI_MAX_OUTPUT_TOKENS` | no | `400` | Techo de salida del modelo. |
+| `LORE_RATE_LIMIT` | no | `24` | Peticiones de `/api/lore` por IP y ventana de 10 min. |
+
+En la plataforma de deploy las variables se declaran en el dashboard
+(Vercel → Settings → Environment Variables), **no** en el repositorio.
+
+### Deploy
+
+El repositorio incluye `vercel.json` (build `npm run build`, salida `dist`,
+rewrite SPA, cabeceras de cache `immutable` para `/assets/*` y `no-cache` para
+el HTML) y `api/index.ts`, un adaptador serverless que reutiliza el mismo
+Express app que `npm start`. Rutas:
+
+- `/api/health` → estado del kernel (`200`, `no-store`).
+- `/api/lore` → oráculo de lore Gemini (`POST`, validado, con rate limit).
+- cualquier otra ruta → `index.html` (SPA).
+
+---
+
+## 🧪 5. Calidad verificable
+
+El workspace aplica el Protocolo SDD Maestro (`PROTOCOLO_COMPLETO_BELENTANI_VISUAL_ENGINE.md`)
+y los 30 criterios de `PRODUCTION_CHECKLIST.md`. Todo está automatizado:
+
+| Comando | Qué verifica | Sale mal si… |
+| --- | --- | --- |
+| `npm run lint` / `npm run typecheck` | `tsc --noEmit` sobre `src`, `server.ts`, `api/`, `e2e/` y las configs | hay un error de tipos |
+| `npm run build` | typecheck + bundle de producción con code splitting | falla la compilación |
+| `npm test` | 192 tests (unitarios, componentes, axe-core WCAG 2.1 AA, servidor Express) | un test falla |
+| `npm run test:coverage` | lo anterior con cobertura v8 en `coverage/` | — |
+| `npm run test:e2e` | 28 casos Playwright (chromium + móvil) sobre el build de producción | falta un navegador: `npx playwright install --with-deps chromium` |
+| `npm run perf` | presupuestos de bundle: primer paint vs lazy, gzip/brotli, duplicados | se supera un presupuesto |
+| `npm run check:i18n` | paridad de claves en pt/es/en/ca y claves usadas sin definir | hay desviaciones |
+| `npm run audit` | los 30 criterios de producción, nivel 2 | un criterio en `fail` |
+| `npm run audit:full` | igual, ejecutando además typecheck, build y tests | — |
+
+Presupuestos de rendimiento vigentes (`scripts/perf-report.mjs`):
+
+| Métrica | Presupuesto | Estado |
+| --- | --- | --- |
+| JS del primer paint (gzip) | ≤ 120 kB | **81,3 kB** |
+| JS del primer paint (brotli) | ≤ 100 kB | **70,1 kB** |
+| CSS del primer paint (gzip) | ≤ 25 kB | **11,1 kB** |
+| Chunk individual mayor (gzip) | ≤ 150 kB | **134,1 kB** (`vendor-three`, lazy) |
+| Peticiones JS/CSS iniciales | ≤ 8 | **4** |
+| Assets estáticos duplicados | 0 | **0** |
+
+### Herramientas internas
+
+`scripts/` contiene la herramienta de auditoría del proyecto. Todas aceptan
+`--help` y `--json`, devuelven códigos de salida significativos y están
+documentadas en [`scripts/README.md`](scripts/README.md):
+
+- `scripts/perf-report.mjs` — mide `dist/`, separa primer paint de chunks lazy
+  y hace cumplir los presupuestos.
+- `scripts/check-i18n-parity.mjs` — paridad de claves entre los 4 idiomas y
+  detección de claves usadas que no existen.
+- `scripts/audit-production-readiness.mjs` — sustituye la referencia muerta
+  `tools/audit-production-readiness.py` que el checklist citaba: ahora el
+  comando existe, se ejecuta y su salida es verificable en CI.
+
+### Documentación del ciclo
+
+- [`SPEC.md`](SPEC.md) — especificación con criterios de aceptación EARS.
+- [`CHANGELOG.md`](CHANGELOG.md) — historial Keep a Changelog.
+- [`PRODUCTION_CHECKLIST.md`](PRODUCTION_CHECKLIST.md) — matriz de 30 criterios.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) y [`SECURITY.md`](SECURITY.md).
 
 ---
 
