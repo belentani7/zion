@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { VisualEngineSettings, PaletteId } from '../../types';
 import {
+  snapshotFileName,
   WEBGL_UNAVAILABLE_MESSAGE,
   orbitFromKey,
   prefersReducedMotion,
@@ -10,6 +11,7 @@ import {
   subscribeToVisibility,
   zoomFromWheel,
   type OrbitalCamera,
+  type SnapshotResult,
 } from '../../lib/webgl';
 
 interface CanvasProps {
@@ -19,6 +21,11 @@ interface CanvasProps {
   exportTrigger?: number;
   /** Increment to restore the default orbital camera (see `useEffect` below). */
   resetToken?: number;
+  /**
+   * Resultado de la exportación PNG. La vista lo convierte en un anuncio
+   * traducido; este componente no recibe idioma a propósito.
+   */
+  onSnapshotResult?: (result: SnapshotResult) => void;
 }
 
 const PALETTE_COLORS: Record<PaletteId, number[]> = {
@@ -36,6 +43,7 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
   onStatsUpdate,
   exportTrigger,
   resetToken = 0,
+  onSnapshotResult,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -134,10 +142,21 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
       const dataUrl = rendererRef.current.domElement.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = dataUrl;
-      a.download = `belentani-${settings.generator}-seed${settings.seed}-${Date.now()}.png`;
+      a.download = snapshotFileName(settings.generator, settings.seed, Date.now());
       a.click();
-    } catch (e) {
-      console.error('Snapshot failed', e);
+      onSnapshotResult?.({ ok: true, fileName: a.download });
+    } catch (error) {
+      // Observability built-in: log estructurado para el operador, sin stack ni
+      // detalle interno hacia el visitante (P4).
+      console.error(
+        JSON.stringify({
+          event: 'visual_engine.snapshot_failed',
+          generator: settings.generator,
+          seed: settings.seed,
+          reason: error instanceof Error ? error.message : String(error),
+        }),
+      );
+      onSnapshotResult?.({ ok: false });
     }
   }, [exportTrigger]);
 
@@ -1108,6 +1127,7 @@ export const VisualEngineCanvas: React.FC<CanvasProps> = ({
   if (webglError) {
     return (
       <div
+        id="engine-webgl-fallback"
         role="status"
         className="w-full h-full flex flex-col items-center justify-center gap-3 bg-zinc-950 p-6 text-center"
       >

@@ -3,6 +3,7 @@ import { VisualEngineSettings, Language } from '../../types';
 import { VisualEngineCanvas } from './VisualEngineCanvas';
 import { VisualEngineControls } from './VisualEngineControls';
 import { translations } from '../../locales/i18n';
+import { describeSnapshot, type SnapshotResult } from '../../lib/webgl';
 import { Sparkles, Maximize2, Move3d } from 'lucide-react';
 
 interface Props {
@@ -29,7 +30,12 @@ export const VisualEngineView: React.FC<Props> = ({ lang }) => {
   const [stats, setStats] = useState({ triangles: 0, points: 12000 });
   const [exportTrigger, setExportTrigger] = useState(0);
   const [resetToken, setResetToken] = useState(0);
+  const [snapshot, setSnapshot] = useState<SnapshotResult | null>(null);
   const t = translations[lang];
+  const snapshotMessage = describeSnapshot(snapshot, {
+    ok: t.engineSnapshotOk,
+    error: t.engineSnapshotError,
+  });
 
   // Previously this set the settings object to a copy of itself, which changed
   // nothing: the camera kept its orbital angles and distance.
@@ -89,6 +95,18 @@ export const VisualEngineView: React.FC<Props> = ({ lang }) => {
             <span className="text-[10px] font-mono text-zinc-400 bg-zinc-950/80 px-2 py-0.5 rounded border border-zinc-800 backdrop-blur-sm">
               PALETTE: {settings.palette.toUpperCase()}
             </span>
+            {/* La exportación PNG dejaba el fallo en silencio: ahora se anuncia. */}
+            <span
+              id="engine-snapshot-status"
+              role="status"
+              className={`text-[10px] font-mono px-2 py-0.5 rounded border backdrop-blur-sm transition-colors ${
+                snapshot?.ok === false
+                  ? 'text-rose-300 bg-rose-950/70 border-rose-800/60'
+                  : 'text-emerald-300 bg-emerald-950/70 border-emerald-800/60'
+              }`}
+            >
+              {snapshotMessage}
+            </span>
           </div>
 
           <div className="flex-1 w-full h-full">
@@ -98,6 +116,7 @@ export const VisualEngineView: React.FC<Props> = ({ lang }) => {
               onStatsUpdate={setStats}
               exportTrigger={exportTrigger}
               resetToken={resetToken}
+              onSnapshotResult={setSnapshot}
             />
           </div>
         </div>

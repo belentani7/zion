@@ -5,8 +5,10 @@ import {
   prefersReducedMotion,
   clampCameraDistance,
   orbitFromKey,
+  describeSnapshot,
   probeWebGL,
   probeWebGLSupport,
+  snapshotFileName,
   resolvePixelRatio,
   subscribeToVisibility,
   zoomFromWheel,
@@ -333,5 +335,44 @@ describe('orbitFromKey — mapa de teclado (WCAG 2.1.1)', () => {
     const before = { rotation: { x: 0.3, y: 0.5 }, distance: 40 };
     orbitFromKey(before, 'ArrowLeft');
     expect(before).toEqual({ rotation: { x: 0.3, y: 0.5 }, distance: 40 });
+  });
+});
+
+describe('snapshotFileName / describeSnapshot — exportación PNG', () => {
+  const etiquetas = { ok: 'Snapshot PNG exportado', error: 'No se pudo exportar el snapshot' };
+
+  it('conserva el formato histórico del nombre de fichero', () => {
+    expect(snapshotFileName('galaxy', 42, 1700000000000)).toBe(
+      'belentani-galaxy-seed42-1700000000000.png',
+    );
+  });
+
+  it('acepta semilla cero y negativa sin alterar el formato', () => {
+    expect(snapshotFileName('nebula', 0, 1)).toBe('belentani-nebula-seed0-1.png');
+    expect(snapshotFileName('nebula', -7, 1)).toBe('belentani-nebula-seed-7-1.png');
+  });
+
+  it('no anuncia nada mientras no haya resultado', () => {
+    expect(describeSnapshot(null, etiquetas)).toBe('');
+  });
+
+  it('anuncia el éxito con la etiqueta traducida', () => {
+    expect(
+      describeSnapshot({ ok: true, fileName: 'belentani-galaxy-seed42-1.png' }, etiquetas),
+    ).toBe(etiquetas.ok);
+  });
+
+  it('anuncia el fallo sin filtrar el motivo interno (P4)', () => {
+    const mensaje = describeSnapshot({ ok: false }, etiquetas);
+
+    expect(mensaje).toBe(etiquetas.error);
+    expect(mensaje).not.toMatch(/SecurityError|toDataURL|WebGL|stack/i);
+  });
+
+  it('usa las etiquetas del idioma que le pasa la vista, no unas fijas', () => {
+    const en = { ok: 'PNG snapshot exported', error: 'Snapshot export failed' };
+
+    expect(describeSnapshot({ ok: false }, en)).toBe('Snapshot export failed');
+    expect(describeSnapshot({ ok: true, fileName: 'x.png' }, en)).toBe('PNG snapshot exported');
   });
 });

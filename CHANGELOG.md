@@ -28,7 +28,7 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
   único módulo compartido y testeable sin contexto GL.
 - **`src/vite-env.d.ts`** con la referencia a `vite/client`.
 - **Suite de tests**: Vitest 5.1.1 + Testing Library + jsdom + axe-core y
-  Playwright. **244 tests** unitarios, de componente, de accesibilidad y del
+  Playwright. **251 tests** unitarios, de componente, de accesibilidad y del
   servidor (7 ficheros, 48 suites) más **28 casos E2E** (chromium y móvil)
   sobre el build de producción:
   `sddAudit` 76 · `webgl` 53 · `server` 38 · `a11y` 29 · `App` 18 ·
@@ -137,6 +137,19 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
   importadas.
 - **Imports sin usar** en `ProductionChecklistView` (`CheckCircle2`,
   `ShieldAlert`, `Filter`, `ExternalLink`, `Layers`).
+
+- **Exportación de snapshot del Visual Engine**: el fallo de `toDataURL` se registraba con un
+  `console.error('Snapshot failed', e)` y el visitante no recibía nada (P2: faltaba la categoría
+  de error de sistema). Ahora el canvas eleva el resultado con `onSnapshotResult` (guardrail 2:
+  el componente técnico no conoce idiomas), la vista lo anuncia en una región
+  `role="status"` traducida en los 4 idiomas y el operador recibe un log JSON estructurado con
+  generador, semilla y motivo, sin stack ni detalle interno (P4).
+- **`snapshotFileName` y `describeSnapshot`** en `src/lib/webgl.ts`: la lógica del nombre de
+  fichero y del anuncio pasa a funciones puras con 6 tests propios. El formato del nombre se
+  conserva idéntico al histórico.
+- **Identificadores estables en las regiones de estado** (`#engine-webgl-fallback` y
+  `#engine-snapshot-status`): conviven dos regiones `role="status"` en el Visual Engine y cada
+  test apunta ahora a la suya.
 
 ### Eliminado
 
