@@ -1,4 +1,15 @@
-import { Language } from '../types';
+import { Language, NavTabId } from '../types';
+
+/**
+ * Locale catalogue in the fixed order declared by the protocol
+ * (PROTOCOLO_COMPLETO_BELENTANI_VISUAL_ENGINE.md §11: PT > ES > EN > CA).
+ */
+export const LANGUAGES: { id: Language; label: string }[] = [
+  { id: 'pt', label: 'Português' },
+  { id: 'es', label: 'Español' },
+  { id: 'en', label: 'English' },
+  { id: 'ca', label: 'Català' },
+];
 
 export const translations = {
   pt: {
@@ -18,7 +29,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — Qualidade Videojogo AAA r185+',
+    engineSubtitle: 'Experiências visuais procedurais Three.js r174 — WebGL2, EffectComposer e Bloom',
     presetLabel: 'Gerador Procedural',
     paletteLabel: 'Paleta Cromática',
     controlsTitle: 'Parâmetros em Tempo Real',
@@ -27,6 +38,7 @@ export const translations = {
     speed: 'Velocidade de Simulação',
     density: 'Densidade / Partículas',
     rotationSpeed: 'Rotação Orbital',
+    particleSize: 'Tamanho de Partícula / Geometria',
     seed: 'Semente Procedural',
     resetCamera: 'Resetar Câmara',
     takeSnapshot: 'Capturar Cena 4K',
@@ -44,7 +56,40 @@ export const translations = {
     sddExportReport: 'Exportar Protocolo',
     sddPrinciples: 'Princípios da Constituição (Inmutáveis)',
     sddGatesTitle: 'Ciclo de Vida E0 - E7',
-    
+    sddGuardrails: 'Guardrails de Arquitetura',
+    sddGuardrailsHint: 'Os 7 guardrails da constituição, verificados em cada pull request.',
+    sddDeployMatrix: 'Matriz de Deploy',
+    sddDeployMatrixHint: 'A plataforma é escolhida pelo arquivo de configuração presente no repositório.',
+    sddDeploySignal: 'Sinal',
+    sddDeployPlatform: 'Plataforma',
+    sddDeployCli: 'CLI',
+    sddQualityGatesTitle: 'Portões de Qualidade',
+    sddQualityCaption: 'Portões de qualidade obrigatórios do protocolo com ferramenta, limite e comando',
+    sddQualityColGate: 'Portão',
+    sddQualityColTool: 'Ferramenta',
+    sddQualityColThreshold: 'Limite',
+    sddQualityColCommand: 'Comando',
+    sddProgress: 'Progresso do Protocolo',
+    sddGatesPassed: 'Gates Aprovados',
+    sddStageStatus: 'Estado',
+    sddStatusPending: 'Pendente',
+    sddStatusInProgress: 'Em Curso',
+    sddStatusPassed: 'Aprovado',
+    sddStatusBlocked: 'Bloqueado',
+    sddGateRequirement: 'Requisito do Gate',
+    sddArtifact: 'Artefato',
+    sddChecklist: 'Checklist do Gate',
+    sddSpecInputLabel: 'Spec a auditar (SPEC.md)',
+    sddSpecInputHint: 'Cola o texto integral da spec. A auditoria verifica as 6 áreas, critérios EARS e a constituição P1-P5.',
+    sddRunAudit: 'Executar Auditoria',
+    sddClearSpec: 'Limpar',
+    sddAuditVerdict: 'Veredicto',
+    sddAuditScore: 'Pontuação',
+    sddAuditFindings: 'Achados',
+    sddAuditAreas: 'Áreas Requeridas (Specify)',
+    sddAuditEars: 'Critérios de Sucesso EARS',
+    sddAuditPlaceholder: '## Objective\n...\n## Commands\n...\nWHEN o utilizador abre a app THEN ...',
+
     // Production Checklist
     checklistTitle: 'Checklist de Produção',
     checklistSubtitle: '30 Critérios Obligatórios para Projeto Seguro e Estável na Internet',
@@ -68,6 +113,11 @@ export const translations = {
     ciAuditTab: 'Auditor de Higiene CI',
     viewScript: 'Ver Código',
     copyCommand: 'Copiar Comando',
+    copiedLabel: 'Copiado',
+    errorTitle: 'Esta secção falhou',
+    errorDescription: 'O módulo encontrou um erro inesperado. O resto do workspace continua operativo.',
+    errorRetry: 'Tentar novamente',
+    skipToContent: 'Saltar para o conteúdo principal',
   },
   es: {
     appTitle: 'Belentani Workspace & Visual Engine',
@@ -86,7 +136,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — Calidad Videojuego AAA r185+',
+    engineSubtitle: 'Experiencias visuales procedurales Three.js r174 — WebGL2, EffectComposer y Bloom',
     presetLabel: 'Generador Procedural',
     paletteLabel: 'Paleta Cromática',
     controlsTitle: 'Parámetros en Tiempo Real',
@@ -95,6 +145,7 @@ export const translations = {
     speed: 'Velocidad de Simulación',
     density: 'Densidad / Partículas',
     rotationSpeed: 'Rotación Orbital',
+    particleSize: 'Tamaño de Partícula / Geometría',
     seed: 'Semilla Procedural',
     resetCamera: 'Resetear Cámara',
     takeSnapshot: 'Capturar Escena 4K',
@@ -112,7 +163,40 @@ export const translations = {
     sddExportReport: 'Exportar Protocolo',
     sddPrinciples: 'Principios de la Constitución (Inmutables)',
     sddGatesTitle: 'Ciclo de Vida E0 - E7',
-    
+    sddGuardrails: 'Guardrails arquitectónicos',
+    sddGuardrailsHint: 'Los 7 guardrails de la constitución, verificados en cada pull request.',
+    sddDeployMatrix: 'Matriz de despliegue',
+    sddDeployMatrixHint: 'La plataforma se elige por el fichero de configuración presente en el repositorio.',
+    sddDeploySignal: 'Señal',
+    sddDeployPlatform: 'Plataforma',
+    sddDeployCli: 'CLI',
+    sddQualityGatesTitle: 'Puertas de calidad',
+    sddQualityCaption: 'Puertas de calidad obligatorias del protocolo con su herramienta, umbral y comando',
+    sddQualityColGate: 'Puerta',
+    sddQualityColTool: 'Herramienta',
+    sddQualityColThreshold: 'Umbral',
+    sddQualityColCommand: 'Comando',
+    sddProgress: 'Progreso del Protocolo',
+    sddGatesPassed: 'Gates Aprobados',
+    sddStageStatus: 'Estado',
+    sddStatusPending: 'Pendiente',
+    sddStatusInProgress: 'En Curso',
+    sddStatusPassed: 'Aprobado',
+    sddStatusBlocked: 'Bloqueado',
+    sddGateRequirement: 'Requisito de Gate',
+    sddArtifact: 'Artefacto',
+    sddChecklist: 'Checklist del Gate',
+    sddSpecInputLabel: 'Spec a auditar (SPEC.md)',
+    sddSpecInputHint: 'Pega el texto completo de la spec. La auditoría verifica las 6 áreas, los criterios EARS y la constitución P1-P5.',
+    sddRunAudit: 'Ejecutar Auditoría',
+    sddClearSpec: 'Limpiar',
+    sddAuditVerdict: 'Veredicto',
+    sddAuditScore: 'Puntuación',
+    sddAuditFindings: 'Hallazgos',
+    sddAuditAreas: 'Áreas Requeridas (Specify)',
+    sddAuditEars: 'Criterios de Éxito EARS',
+    sddAuditPlaceholder: '## Objective\n...\n## Commands\n...\nWHEN el usuario abre la app THEN ...',
+
     // Production Checklist
     checklistTitle: 'Checklist de Producción',
     checklistSubtitle: '30 Criterios Obligatorios para Proyecto Seguro y Estable en Internet',
@@ -136,6 +220,11 @@ export const translations = {
     ciAuditTab: 'Auditor de Higiene CI',
     viewScript: 'Ver Código',
     copyCommand: 'Copiar Comando',
+    copiedLabel: 'Copiado',
+    errorTitle: 'Esta sección ha fallado',
+    errorDescription: 'El módulo ha encontrado un error inesperado. El resto del workspace sigue operativo.',
+    errorRetry: 'Reintentar',
+    skipToContent: 'Saltar al contenido principal',
   },
   en: {
     appTitle: 'Belentani Workspace & Visual Engine',
@@ -154,7 +243,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — AAA Game Quality r185+',
+    engineSubtitle: 'Three.js r174 procedural visual experiences — WebGL2, EffectComposer and Bloom',
     presetLabel: 'Procedural Generator',
     paletteLabel: 'Chromatic Palette',
     controlsTitle: 'Real-Time Parameters',
@@ -163,6 +252,7 @@ export const translations = {
     speed: 'Simulation Speed',
     density: 'Density / Particles',
     rotationSpeed: 'Orbital Rotation',
+    particleSize: 'Particle / Geometry Size',
     seed: 'Procedural Seed',
     resetCamera: 'Reset Camera',
     takeSnapshot: 'Capture 4K Snapshot',
@@ -180,7 +270,40 @@ export const translations = {
     sddExportReport: 'Export Protocol',
     sddPrinciples: 'Constitution Principles (Immutable)',
     sddGatesTitle: 'Lifecycle E0 - E7',
-    
+    sddGuardrails: 'Architectural Guardrails',
+    sddGuardrailsHint: 'The 7 constitution guardrails, verified on every pull request.',
+    sddDeployMatrix: 'Deploy Matrix',
+    sddDeployMatrixHint: 'The platform is picked from the config file present in the repository.',
+    sddDeploySignal: 'Signal',
+    sddDeployPlatform: 'Platform',
+    sddDeployCli: 'CLI',
+    sddQualityGatesTitle: 'Quality Gates',
+    sddQualityCaption: 'Mandatory protocol quality gates with their tool, threshold and command',
+    sddQualityColGate: 'Gate',
+    sddQualityColTool: 'Tool',
+    sddQualityColThreshold: 'Threshold',
+    sddQualityColCommand: 'Command',
+    sddProgress: 'Protocol Progress',
+    sddGatesPassed: 'Gates Approved',
+    sddStageStatus: 'Status',
+    sddStatusPending: 'Pending',
+    sddStatusInProgress: 'In Progress',
+    sddStatusPassed: 'Passed',
+    sddStatusBlocked: 'Blocked',
+    sddGateRequirement: 'Gate Requirement',
+    sddArtifact: 'Artifact',
+    sddChecklist: 'Gate Checklist',
+    sddSpecInputLabel: 'Spec to audit (SPEC.md)',
+    sddSpecInputHint: 'Paste the full spec text. The audit verifies the 6 areas, the EARS success criteria and the P1-P5 constitution.',
+    sddRunAudit: 'Run Audit',
+    sddClearSpec: 'Clear',
+    sddAuditVerdict: 'Verdict',
+    sddAuditScore: 'Score',
+    sddAuditFindings: 'Findings',
+    sddAuditAreas: 'Required Areas (Specify)',
+    sddAuditEars: 'EARS Success Criteria',
+    sddAuditPlaceholder: '## Objective\n...\n## Commands\n...\nWHEN the user opens the app THEN ...',
+
     // Production Checklist
     checklistTitle: 'Production Checklist',
     checklistSubtitle: '30 Mandatory Criteria for Stable, Secure Internet-Grade Projects',
@@ -204,6 +327,11 @@ export const translations = {
     ciAuditTab: 'CI Hygiene Auditor',
     viewScript: 'View Code',
     copyCommand: 'Copy Command',
+    copiedLabel: 'Copied',
+    errorTitle: 'This section failed',
+    errorDescription: 'The module hit an unexpected error. The rest of the workspace keeps working.',
+    errorRetry: 'Try again',
+    skipToContent: 'Skip to main content',
   },
   ca: {
     appTitle: 'Belentani Workspace & Visual Engine',
@@ -222,7 +350,7 @@ export const translations = {
     
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
-    engineSubtitle: 'Three.js Procedural Visual Experiences — Qualitat Videojoc AAA r185+',
+    engineSubtitle: 'Experiències visuals procedurals Three.js r174 — WebGL2, EffectComposer i Bloom',
     presetLabel: 'Generador Procedural',
     paletteLabel: 'Paleta Cromàtica',
     controlsTitle: 'Paràmetres en Temps Real',
@@ -231,6 +359,7 @@ export const translations = {
     speed: 'Velocitat de Simulació',
     density: 'Densitat / Partícules',
     rotationSpeed: 'Rotació Orbital',
+    particleSize: 'Mida de Partícula / Geometria',
     seed: 'Llavor Procedural',
     resetCamera: 'Reiniciar Càmera',
     takeSnapshot: 'Capturar Escena 4K',
@@ -248,7 +377,40 @@ export const translations = {
     sddExportReport: 'Exportar Protocol',
     sddPrinciples: 'Principis de la Constitució (Immutables)',
     sddGatesTitle: 'Cicle de Vida E0 - E7',
-    
+    sddGuardrails: 'Guardrails arquitectònics',
+    sddGuardrailsHint: 'Els 7 guardrails de la constitució, verificats a cada pull request.',
+    sddDeployMatrix: 'Matriu de desplegament',
+    sddDeployMatrixHint: 'La plataforma es tria pel fitxer de configuració present al repositori.',
+    sddDeploySignal: 'Senyal',
+    sddDeployPlatform: 'Plataforma',
+    sddDeployCli: 'CLI',
+    sddQualityGatesTitle: 'Portes de qualitat',
+    sddQualityCaption: 'Portes de qualitat obligatòries del protocol amb la seva eina, llindar i ordre',
+    sddQualityColGate: 'Porta',
+    sddQualityColTool: 'Eina',
+    sddQualityColThreshold: 'Llindar',
+    sddQualityColCommand: 'Ordre',
+    sddProgress: 'Progrés del Protocol',
+    sddGatesPassed: 'Gates Aprovats',
+    sddStageStatus: 'Estat',
+    sddStatusPending: 'Pendent',
+    sddStatusInProgress: 'En Curs',
+    sddStatusPassed: 'Aprovat',
+    sddStatusBlocked: 'Bloquejat',
+    sddGateRequirement: 'Requisit de Gate',
+    sddArtifact: 'Artefacte',
+    sddChecklist: 'Checklist del Gate',
+    sddSpecInputLabel: 'Spec a auditar (SPEC.md)',
+    sddSpecInputHint: 'Enganxa el text complet de la spec. L\'auditoria verifica les 6 àrees, els criteris EARS i la constitució P1-P5.',
+    sddRunAudit: 'Executar Auditoria',
+    sddClearSpec: 'Netejar',
+    sddAuditVerdict: 'Veredicte',
+    sddAuditScore: 'Puntuació',
+    sddAuditFindings: 'Troballes',
+    sddAuditAreas: 'Àrees Requerides (Specify)',
+    sddAuditEars: 'Criteris d\'Èxit EARS',
+    sddAuditPlaceholder: '## Objective\n...\n## Commands\n...\nWHEN l\'usuari obre l\'app THEN ...',
+
     // Production Checklist
     checklistTitle: 'Checklist de Producció',
     checklistSubtitle: '30 Criteris Obligatoris per a Projecte Segur i Estable a Internet',
@@ -272,5 +434,29 @@ export const translations = {
     ciAuditTab: 'Auditor d\'Higiene CI',
     viewScript: 'Veure Codi',
     copyCommand: 'Copiar Ordre',
+    copiedLabel: 'Copiat',
+    errorTitle: 'Aquesta secció ha fallat',
+    errorDescription: 'El mòdul ha trobat un error inesperat. La resta del workspace continua operatiu.',
+    errorRetry: 'Tornar-ho a provar',
+    skipToContent: 'Salta al contingut principal',
   }
+};
+
+/** One locale bundle. Every language must expose exactly this key set. */
+export type Translation = (typeof translations)['es'];
+
+/** Every localisable language, derived from the catalogue itself. */
+export type SupportedLanguage = keyof typeof translations;
+
+/**
+ * Tab labels as functions of the active bundle: Navigation renders them and App
+ * composes `document.title` with them, so the two can never drift apart.
+ */
+export const NAV_TAB_LABELS: Record<NavTabId, (t: Translation) => string> = {
+  judas_omega: (t) => t.navJudasOmega,
+  omega_prime: (t) => t.navOmegaPrime,
+  visual_engine: (t) => t.navVisualEngine,
+  sdd_maestro: (t) => t.navSddMaestro,
+  production_checklist: (t) => t.navProductionChecklist,
+  workspace_hub: (t) => t.navWorkspaceHub,
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Language, NavTabId } from '../types';
-import { translations } from '../locales/i18n';
+import { LANGUAGES, NAV_TAB_LABELS, translations } from '../locales/i18n';
 import {
   Award,
   Cpu,
@@ -19,13 +19,6 @@ interface NavProps {
   onLangChange: (lang: Language) => void;
 }
 
-const LANGUAGES: { id: Language; label: string }[] = [
-  { id: 'pt', label: 'Português' },
-  { id: 'es', label: 'Español' },
-  { id: 'en', label: 'English' },
-  { id: 'ca', label: 'Català' },
-];
-
 export const Navigation: React.FC<NavProps> = ({
   currentTab,
   onTabChange,
@@ -35,38 +28,16 @@ export const Navigation: React.FC<NavProps> = ({
   const t = translations[lang];
 
   const tabs: { id: NavTabId; label: string; icon: React.ReactNode; accent?: 'omega' }[] = [
-    {
-      id: 'judas_omega',
-      label: t.navJudasOmega,
-      icon: <Flame className="w-3.5 h-3.5" />,
-      accent: 'omega',
-    },
-    {
-      id: 'omega_prime',
-      label: t.navOmegaPrime,
-      icon: <Zap className="w-3.5 h-3.5" />,
-      accent: 'omega',
-    },
-    {
-      id: 'visual_engine',
-      label: t.navVisualEngine,
-      icon: <Sparkles className="w-3.5 h-3.5" />,
-    },
-    {
-      id: 'sdd_maestro',
-      label: t.navSddMaestro,
-      icon: <ShieldCheck className="w-3.5 h-3.5" />,
-    },
+    { id: 'judas_omega', label: NAV_TAB_LABELS.judas_omega(t), icon: <Flame className="w-3.5 h-3.5" />, accent: 'omega' },
+    { id: 'omega_prime', label: NAV_TAB_LABELS.omega_prime(t), icon: <Zap className="w-3.5 h-3.5" />, accent: 'omega' },
+    { id: 'visual_engine', label: NAV_TAB_LABELS.visual_engine(t), icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { id: 'sdd_maestro', label: NAV_TAB_LABELS.sdd_maestro(t), icon: <ShieldCheck className="w-3.5 h-3.5" /> },
     {
       id: 'production_checklist',
-      label: t.navProductionChecklist,
+      label: NAV_TAB_LABELS.production_checklist(t),
       icon: <Award className="w-3.5 h-3.5" />,
     },
-    {
-      id: 'workspace_hub',
-      label: t.navWorkspaceHub,
-      icon: <FolderGit2 className="w-3.5 h-3.5" />,
-    },
+    { id: 'workspace_hub', label: NAV_TAB_LABELS.workspace_hub(t), icon: <FolderGit2 className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -79,7 +50,10 @@ export const Navigation: React.FC<NavProps> = ({
           className="flex items-center gap-3 text-left shrink-0 group cursor-pointer"
         >
           <div className="w-9 h-9 rounded-lg border border-rose-500/40 bg-zinc-950 flex items-center justify-center group-hover:border-amber-400/60 transition-colors">
-            <Cpu className="w-4.5 h-4.5 text-rose-400 group-hover:text-amber-300 transition-colors" />
+            <Cpu
+              className="w-4.5 h-4.5 text-rose-400 group-hover:text-amber-300 transition-colors"
+              aria-hidden="true"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -112,6 +86,7 @@ export const Navigation: React.FC<NavProps> = ({
               <button
                 key={tab.id}
                 type="button"
+                aria-current={active ? 'page' : undefined}
                 onClick={() => onTabChange(tab.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                   active
@@ -119,7 +94,7 @@ export const Navigation: React.FC<NavProps> = ({
                     : 'text-zinc-400 hover:text-zinc-100 border border-transparent'
                 }`}
               >
-                {tab.icon}
+                <span aria-hidden="true" className="flex items-center">{tab.icon}</span>
                 <span>{tab.label}</span>
               </button>
             );
@@ -133,8 +108,10 @@ export const Navigation: React.FC<NavProps> = ({
               <button
                 key={l.id}
                 type="button"
+                aria-pressed={lang === l.id}
                 onClick={() => onLangChange(l.id)}
                 title={l.label}
+                lang={l.id}
                 className={`px-2 py-1 rounded-lg text-xs font-mono font-bold transition-colors uppercase whitespace-nowrap cursor-pointer ${
                   lang === l.id
                     ? 'bg-rose-600 text-white'
@@ -147,7 +124,7 @@ export const Navigation: React.FC<NavProps> = ({
           </div>
 
           <div className="hidden md:flex items-center gap-1.5 text-xs font-mono text-zinc-400 whitespace-nowrap">
-            <GitBranch className="w-3.5 h-3.5 text-amber-400/80" />
+            <GitBranch className="w-3.5 h-3.5 text-amber-400/80" aria-hidden="true" />
             <span>belentani7</span>
           </div>
         </div>

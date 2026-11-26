@@ -28,10 +28,13 @@ export const VisualEngineView: React.FC<Props> = ({ lang }) => {
   const [fps, setFps] = useState(60);
   const [stats, setStats] = useState({ triangles: 0, points: 12000 });
   const [exportTrigger, setExportTrigger] = useState(0);
+  const [resetToken, setResetToken] = useState(0);
   const t = translations[lang];
 
+  // Previously this set the settings object to a copy of itself, which changed
+  // nothing: the camera kept its orbital angles and distance.
   const handleResetCamera = () => {
-    setSettings((s) => ({ ...s, seed: s.seed })); // Trigger refresh
+    setResetToken((token) => token + 1);
   };
 
   const handleTakeSnapshot = () => {
@@ -63,12 +66,14 @@ export const VisualEngineView: React.FC<Props> = ({ lang }) => {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-xs text-zinc-300">
             <Move3d className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="hidden sm:inline">Drag to Orbit • Scroll to Zoom</span>
+            <span className="hidden sm:inline">
+              Drag to Orbit • Scroll to Zoom • Arrow keys + / −
+            </span>
             <span className="sm:hidden">Interactive 3D</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-300">
             <Sparkles className="w-3.5 h-3.5" />
-            <span className="font-mono">WebGPU / TSL Ready</span>
+            <span className="font-mono">WebGL2 · EffectComposer + Bloom</span>
           </div>
         </div>
       </div>
@@ -92,6 +97,7 @@ export const VisualEngineView: React.FC<Props> = ({ lang }) => {
               onFpsUpdate={setFps}
               onStatsUpdate={setStats}
               exportTrigger={exportTrigger}
+              resetToken={resetToken}
             />
           </div>
         </div>

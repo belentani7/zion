@@ -1,0 +1,48 @@
+# Dependabot — PRODUCTION_CHECKLIST criterio 6 (Alto).
+# Las actualizaciones de npm y de GitHub Actions llegan como PR separados para
+# que el fallo de uno no bloquee el otro. El agrupamiento por "patch/minor"
+# evita la avalancha de PRs que hace que la gente ignore a Dependabot.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    groups:
+      # Vitest y sus add-ons declaran un peer exacto sobre vitest: deben subir
+      # juntos o el install falla.
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      testing-library:
+        patterns:
+          - "@testing-library/*"
+      typescript:
+        patterns:
+          - "typescript"
+      three:
+        patterns:
+          - "three"
+          - "@types/three"
+    ignore:
+      # Vite 8 exige @vitejs/plugin-react 6 (peer ^8.0.0): subida mayor
+      # coordinada, no automática.
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitejs/plugin-react"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Madrid
+    open-pull-requests-limit: 5

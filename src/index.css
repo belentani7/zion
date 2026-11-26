@@ -65,3 +65,43 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #ff0033;
 }
+
+/* ------------------------------------------------------------------------- *
+ * Accesibilidad y rendimiento perceptual
+ * ------------------------------------------------------------------------- */
+
+/* WCAG 2.1 AA 2.3.3 (Animation from Interactions): cuando el sistema pide
+ * movimiento reducido se retiran animaciones, transiciones y el scroll suave.
+ * Los bucles WebGL se congelan en JavaScript (src/lib/webgl.ts), que es donde
+ * vive el coste real de GPU; esta regla cubre el resto de la interfaz. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* La app es oscura por diseño: evita el destello blanco del navegador antes de
+ * que cargue el CSS y declara el tema para la UI del agente de usuario. */
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background-color: #000000;
+}
+
+/* 2.4.7 Focus Visible: el anillo por defecto de Tailwind se retira con
+ * focus:outline-none en varios controles; esta regla garantiza que cualquier
+ * elemento enfocable conserve un indicador visible al navegar con teclado. */
+:focus-visible {
+  outline: 2px solid #ff0033;
+  outline-offset: 2px;
+}
+
+/* `sr-only` y `focus:not-sr-only` los emite Tailwind v4 (verificado en el CSS
+ * de build); no se duplican aquí para no pisar las utilidades del framework. */

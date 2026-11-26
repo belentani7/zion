@@ -134,6 +134,10 @@ GITHUB-CONTEXTO-*
 Informe-Proyectos-*.md
 RELATORIO-*
 *MAESTRO*
+# Excepción: PROTOCOLO-SDD-MAESTRO.md no es un relato de sesión ni una nota personal,
+# es la especificación canónica de la que salen los 7 guardrails y la matriz de deploy
+# que renderiza src/components/sdd-maestro/. Se versiona a propósito.
+!PROTOCOLO-SDD-MAESTRO.md
 BELENTANI-UNIFIED-INFO/
 belentani-unified/
 CONTEXTO_MAESTRO/
@@ -168,3 +172,28 @@ RESUMEN_ORGANIZACION.txt
 [0-9]*.csv
 *cache*.csv
 Reporte_*.csv
+
+# --- BUILD Y ARTEFACTOS GENERADOS (added 2026-11-25) ---
+# `dist/` estaba commiteado: 5,3 MB de salida de build que envejecía en cada
+# commit y que cualquier `npm run build` regenera. Fuera del registro.
+dist/
+build/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vite/
+*.local
+.DS_Store
+Thumbs.db
+
+# --- EXCEPCIONES: contenido que SI debe versionarse (added 2026-11-25) ---
+# La regla heredada `[a-z][a-z0-9]*.txt` (pensada para volcados de escritorio)
+# capturaba public/robots.txt y lo dejaba fuera del repositorio sin aviso.
+!public/robots.txt
+!public/**/*.txt

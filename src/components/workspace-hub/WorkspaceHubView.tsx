@@ -229,6 +229,7 @@ export const WorkspaceHubView: React.FC<Props> = ({ lang }) => {
         {/* Tab switchers */}
         <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 text-xs">
           <button
+            type="button"
             onClick={() => setActiveTab('projects')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
               activeTab === 'projects' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -238,6 +239,7 @@ export const WorkspaceHubView: React.FC<Props> = ({ lang }) => {
             <span>{t.projectsTab}</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('scripts')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
               activeTab === 'scripts' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -247,6 +249,7 @@ export const WorkspaceHubView: React.FC<Props> = ({ lang }) => {
             <span>{t.scriptsTab}</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('ci_audit')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
               activeTab === 'ci_audit' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-white'
@@ -336,12 +339,14 @@ export const WorkspaceHubView: React.FC<Props> = ({ lang }) => {
             <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
               Scripts de Automatización
             </span>
-            <div className="space-y-2">
+            <div role="group" aria-label={t.viewScript} className="space-y-2">
               {SCRIPTS_DATA.map((s) => {
                 const isSelected = selectedScript.id === s.id;
                 return (
                   <button
+                    type="button"
                     key={s.id}
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedScript(s)}
                     className={`w-full text-left p-3.5 rounded-xl border transition-all ${
                       isSelected
@@ -379,18 +384,19 @@ export const WorkspaceHubView: React.FC<Props> = ({ lang }) => {
                 </span>
               </div>
               <button
+                type="button"
                 onClick={() => handleCopy(selectedScript.codeSnippet, selectedScript.id)}
                 className="flex items-center gap-1.5 px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs transition-all font-mono"
               >
                 {copied === selectedScript.id ? (
                   <>
-                    <Check className="w-3 h-3 text-emerald-400" />
-                    <span>Copiado</span>
+                    <Check className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+                    <span>{t.copiedLabel}</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3 h-3" />
-                    <span>Copiar</span>
+                    <Copy className="w-3 h-3" aria-hidden="true" />
+                    <span>{t.copyCommand}</span>
                   </>
                 )}
               </button>
@@ -422,6 +428,7 @@ export const WorkspaceHubView: React.FC<Props> = ({ lang }) => {
             </div>
 
             <button
+              type="button"
               onClick={handleRunCiAudit}
               disabled={ciStatus === 'running'}
               className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-emerald-600/30 disabled:opacity-50"

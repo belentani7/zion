@@ -1,0 +1,13 @@
+# belentani-workspace · THE JUDAS EXPERIENCE // OMEGA
+# Protocolo SDD Maestro — gate E7 (SHIP): robots.txt y sitemap.xml declarados.
+
+User-agent: *
+Allow: /
+
+# Las rutas de API no son contenido indexable.
+Disallow: /api/
+
+# Salida de build y artefactos de test, por si se sirven accidentalmente.
+Disallow: /assets/aistudio/
+
+Sitemap: https://belentani.es/sitemap.xml

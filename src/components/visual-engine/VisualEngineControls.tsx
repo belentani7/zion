@@ -85,23 +85,34 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
             {fps} {t.fpsLabel}
           </span>
           <span className="text-zinc-500">
-            {stats.triangles > 0 ? `${stats.triangles.toLocaleString()} Δ` : `${stats.points.toLocaleString()} •`}
+            {stats.triangles > 0
+              ? `${stats.triangles.toLocaleString()} ${t.trianglesLabel}`
+              : `${stats.points.toLocaleString()} ${t.pointsLabel}`}
           </span>
         </div>
       </div>
 
       {/* Generator selection */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-indigo-400" />
+        <span
+          id="generator-group-label"
+          className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5"
+        >
+          <Layers className="w-3.5 h-3.5 text-indigo-400" aria-hidden="true" />
           {t.presetLabel}
-        </label>
-        <div className="grid grid-cols-2 gap-2">
+        </span>
+        <div
+          role="group"
+          aria-labelledby="generator-group-label"
+          className="grid grid-cols-2 gap-2"
+        >
           {GENERATORS.map((gen) => {
             const active = settings.generator === gen.id;
             return (
               <button
                 key={gen.id}
+                type="button"
+                aria-pressed={active}
                 onClick={() => update('generator', gen.id)}
                 className={`flex items-center gap-2 p-2.5 rounded-xl text-left text-xs font-medium transition-all ${
                   active
@@ -119,16 +130,21 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
 
       {/* Color Palette */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+        <span
+          id="palette-group-label"
+          className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-pink-400" aria-hidden="true" />
           {t.paletteLabel}
-        </label>
-        <div className="grid grid-cols-2 gap-2">
+        </span>
+        <div role="group" aria-labelledby="palette-group-label" className="grid grid-cols-2 gap-2">
           {PALETTES.map((pal) => {
             const active = settings.palette === pal.id;
             return (
               <button
                 key={pal.id}
+                type="button"
+                aria-pressed={active}
                 onClick={() => update('palette', pal.id)}
                 className={`flex items-center justify-between p-2 rounded-xl text-xs font-medium transition-all ${
                   active
@@ -155,6 +171,8 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
       {/* Toggles */}
       <div className="grid grid-cols-2 gap-2">
         <button
+          type="button"
+          aria-pressed={settings.wireframe}
           onClick={() => update('wireframe', !settings.wireframe)}
           className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all border ${
             settings.wireframe
@@ -166,6 +184,8 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
           {t.wireframe}
         </button>
         <button
+          type="button"
+          aria-pressed={settings.bloomGlow}
           onClick={() => update('bloomGlow', !settings.bloomGlow)}
           className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold transition-all border ${
             settings.bloomGlow
@@ -185,7 +205,9 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
             <Sliders className="w-3.5 h-3.5 text-cyan-400" />
             {t.controlsTitle}
           </span>
-          <span className="text-[11px] font-mono text-zinc-500">Seed: #{settings.seed}</span>
+          <span className="text-[11px] font-mono text-zinc-500">
+            {t.seed}: #{settings.seed}
+          </span>
         </div>
 
         {/* Speed */}
@@ -196,6 +218,7 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
           </div>
           <input
             type="range"
+            aria-label={t.speed}
             min="0.1"
             max="3"
             step="0.1"
@@ -213,6 +236,7 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
           </div>
           <input
             type="range"
+            aria-label={t.density}
             min="0.3"
             max="2"
             step="0.1"
@@ -230,6 +254,7 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
           </div>
           <input
             type="range"
+            aria-label={t.rotationSpeed}
             min="0"
             max="2.5"
             step="0.1"
@@ -242,11 +267,12 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
         {/* Particle / Geometry Size */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Scale / Geometry Size</span>
+            <span className="text-zinc-400">{t.particleSize}</span>
             <span className="font-mono text-zinc-300">{settings.particleSize.toFixed(1)}</span>
           </div>
           <input
             type="range"
+            aria-label={t.particleSize}
             min="0.5"
             max="3"
             step="0.1"
@@ -261,6 +287,7 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
       <div className="pt-2 border-t border-zinc-800 flex flex-col gap-2 mt-auto">
         <div className="grid grid-cols-2 gap-2">
           <button
+            type="button"
             onClick={onRandomizeSeed}
             className="flex items-center justify-center gap-1.5 py-2 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs font-medium transition-all"
           >
@@ -268,6 +295,7 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
             {t.randomizeSeed}
           </button>
           <button
+            type="button"
             onClick={onResetCamera}
             className="flex items-center justify-center gap-1.5 py-2 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs font-medium transition-all"
           >
@@ -277,6 +305,7 @@ export const VisualEngineControls: React.FC<ControlsProps> = ({
         </div>
 
         <button
+          type="button"
           onClick={onTakeSnapshot}
           className="flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-pink-600 via-indigo-600 to-cyan-600 hover:from-pink-500 hover:to-cyan-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-600/30"
         >
