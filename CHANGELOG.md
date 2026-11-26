@@ -28,7 +28,7 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
   único módulo compartido y testeable sin contexto GL.
 - **`src/vite-env.d.ts`** con la referencia a `vite/client`.
 - **Suite de tests**: Vitest 5.1.1 + Testing Library + jsdom + axe-core y
-  Playwright. **239 tests** unitarios, de componente, de accesibilidad y del
+  Playwright. **244 tests** unitarios, de componente, de accesibilidad y del
   servidor (7 ficheros, 48 suites) más **28 casos E2E** (chromium y móvil)
   sobre el build de producción:
   `sddAudit` 76 · `webgl` 53 · `server` 38 · `a11y` 29 · `App` 18 ·
@@ -48,6 +48,15 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
 - **Dependabot** (`.github/dependabot.yml`) con agrupación de Vitest, Testing
   Library, TypeScript y Three.js.
 - `SPEC.md` con criterios de aceptación en notación EARS y `CHANGELOG.md`.
+
+- **`PROTOCOLO-SDD-MAESTRO.md`**: documento canónico recuperado desde el paquete privado
+  `BELENTANI — OMEGA RECOVERY HARNESS` de Google Drive (constitución P1-P5, 7 guardrails,
+  ciclo E0-E7, matriz de deploy multistack, checklist Nivel 2 y automatización obligatoria).
+  El `.gitignore` heredado lo excluía con el patrón `*MAESTRO*`, pensado para relatos de
+  sesión; se añade la excepción explícita y justificada.
+- **Guardrails y matriz de deploy en la vista SDD Maestro**: `GUARDRAILS` y `DEPLOY_MATRIX`
+  en `sddData.ts`, renderizados como lista ordenada y tabla accesible (caption `sr-only`,
+  `scope="col"`). Completan la constitución, que hasta ahora sólo mostraba P1-P5.
 
 ### Cambiado
 
@@ -92,6 +101,12 @@ Restauración total del workspace (Protocolo SDD Maestro, gates E0-E7).
 - **Higiene del repositorio**: `dist/` deja de estar versionado (5,3 MB),
   `.gitignore` cubre build, cobertura, informes de Playwright y logs, y
   `bun.lock` se retira (no hay binario `bun` en el proyecto).
+
+- **Chrome de la tabla de quality gates localizado**: el título, el caption y las cuatro
+  cabeceras estaban hardcodeados (`Quality Gates`, `Herramienta`, `Umbral`, `Comando`) y se
+  veían en español dentro de la interfaz inglesa, portuguesa y catalana. Ahora salen de
+  `i18n.ts` (6 claves nuevas × 4 idiomas). El contenido de las filas sigue en español a
+  propósito, según la convención documentada en `sddData.ts`.
 
 ### Arreglado
 

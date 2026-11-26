@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Language } from '../../types';
 import { SddMaestroView } from './SddMaestroView';
-import { SDD_STAGES } from './sddData';
+import { DEPLOY_MATRIX, GUARDRAILS, SDD_STAGES } from './sddData';
 import { evaluateProtocol } from './sddAudit';
 
 /**
@@ -29,10 +30,12 @@ describe('SddMaestroView — scorecards reflect the canonical dataset', () => {
     const { container } = render(<SddMaestroView lang="es" />);
     const progress = evaluateProtocol(SDD_STAGES);
 
-    expect(container.querySelectorAll('ol > li')).toHaveLength(8);
+    expect(
+      container.querySelectorAll('[aria-labelledby="sdd-gates-heading"] ol > li'),
+    ).toHaveLength(8);
     expect(screen.getByText(/Protocolo SDD Maestro/)).toBeInTheDocument();
     expect(screen.getByText(/Principios de la Constitución/)).toBeInTheDocument();
-    expect(screen.getByText('Quality Gates')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Puertas de calidad/ })).toBeInTheDocument();
     // The scorecard and the donut centre both show the percentage.
     expect(screen.getAllByText(`${progress.percent}%`).length).toBeGreaterThanOrEqual(2);
     expect(container.textContent).toContain(
@@ -45,9 +48,12 @@ describe('SddMaestroView — scorecards reflect the canonical dataset', () => {
 
   it('renders every quality gate row with its verification command', () => {
     const { container } = render(<SddMaestroView lang="es" />);
-    const rows = container.querySelectorAll('table tbody tr');
-    expect(rows.length).toBe(8);
-    expect(container.querySelector('table')?.textContent).toContain('npm run build');
+    const section = container.querySelector('[aria-labelledby="sdd-quality-heading"]');
+    const rows = section?.querySelectorAll('table tbody tr');
+    expect(rows?.length).toBe(8);
+    expect(section?.querySelector('table')?.textContent).toContain('npm run build');
+    // Las cabeceras son chrome y van localizadas, nunca hardcodeadas.
+    expect(section?.querySelector('thead')?.textContent).toContain('Herramienta');
   });
 
   it.each(['pt', 'es', 'en', 'ca'] as const)('renders without undefined text in %s', (lang) => {
@@ -281,5 +287,65 @@ describe('SddMaestroView — principles section', () => {
     expect(container.textContent).toContain('P5');
     expect(container.textContent).toMatch(/ISTQB/);
     expect(container.textContent).toMatch(/ZERO HAPPY-PATH/i);
+  });
+});
+
+describe('SddMaestroView — guardrails y matriz de deploy del protocolo', () => {
+  it('renderiza los 7 guardrails con su nombre canónico y su descripción', () => {
+    const { container } = render(<SddMaestroView lang="es" />);
+    const items = container.querySelectorAll(
+      '[aria-labelledby="sdd-guardrails-heading"] ol > li',
+    );
+
+    expect(items).toHaveLength(7);
+    expect(items).toHaveLength(GUARDRAILS.length);
+    for (const guardrail of GUARDRAILS) {
+      const item = container.querySelector(`#sdd-guardrail-${guardrail.id}`);
+      expect(item?.textContent).toContain(guardrail.name);
+      expect(item?.textContent).toContain(guardrail.description);
+    }
+    expect(container.textContent).toContain('Spec viva, actualizada en el mismo PR que el código.');
+  });
+
+  it('renderiza las 5 plataformas de la matriz de deploy con su comando literal', () => {
+    const { container } = render(<SddMaestroView lang="es" />);
+    const section = container.querySelector('[aria-labelledby="sdd-deploy-heading"]');
+    const rows = section?.querySelectorAll('table tbody tr');
+
+    expect(rows?.length).toBe(5);
+    expect(rows?.length).toBe(DEPLOY_MATRIX.length);
+    for (const target of DEPLOY_MATRIX) {
+      expect(section?.textContent).toContain(target.platform);
+      expect(section?.textContent).toContain(target.cli);
+      expect(section?.textContent).toContain(target.signal);
+    }
+    expect(section?.querySelector('thead')?.textContent).toContain('Plataforma');
+  });
+
+  it('localiza el chrome de las dos secciones en los 4 idiomas', () => {
+    const esperados: Record<Language, string[]> = {
+      pt: ['Guardrails de Arquitetura', 'Matriz de Deploy', 'Portões de Qualidade'],
+      es: ['Guardrails arquitectónicos', 'Matriz de despliegue', 'Puertas de calidad'],
+      en: ['Architectural Guardrails', 'Deploy Matrix', 'Quality Gates'],
+      ca: ['Guardrails arquitectònics', 'Matriu de desplegament', 'Portes de qualitat'],
+    };
+
+    for (const lang of Object.keys(esperados) as Language[]) {
+      const { container, unmount } = render(<SddMaestroView lang={lang} />);
+      for (const texto of esperados[lang]) expect(container.textContent).toContain(texto);
+      unmount();
+    }
+  });
+
+  it('mantiene el contenido técnico sin traducir en cualquier idioma', () => {
+    // Convención documentada en sddData.ts: el contenido espeja el protocolo en español
+    // y sólo el chrome de la vista se localiza.
+    for (const lang of ['pt', 'es', 'en', 'ca'] as const) {
+      const { container, unmount } = render(<SddMaestroView lang={lang} />);
+      expect(container.textContent).toContain('Single Source of Truth');
+      expect(container.textContent).toContain('AuthZ en cada endpoint');
+      expect(container.textContent).toContain('docker compose up -d --build');
+      unmount();
+    }
   });
 });

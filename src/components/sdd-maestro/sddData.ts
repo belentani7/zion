@@ -221,3 +221,77 @@ export const QUALITY_GATES: QualityGate[] = [
   { id: 'qg-i18n', gate: 'Paridad i18n', tool: 'scripts/check-i18n-parity.mjs', threshold: '0 claves huérfanas', command: 'npm run check:i18n' },
   { id: 'qg-audit', gate: 'Producción (30 criterios)', tool: 'scripts/audit-production-readiness.mjs', threshold: 'Nivel 2 sin fallos críticos', command: 'npm run audit' },
 ];
+
+/** Claves i18n de los guardrails. Unión literal para que el typecheck las valide. */
+export interface Guardrail {
+  id: string;
+  /** Nombre canónico del guardrail; es terminología fija y no se traduce. */
+  name: string;
+  /** Descripción en español, igual que el resto del contenido de este módulo. */
+  description: string;
+}
+
+/**
+ * Los 7 guardrails arquitectónicos de la constitución del proyecto, recuperados de
+ * `PROTOCOLO-SDD-MAESTRO.md`. El documento canónico numera dos veces el 5 (Security by
+ * Default y Rollback Defined); aquí se identifica cada guardrail por su `id` textual y la
+ * vista los numera por posición, sin reescribir el original.
+ */
+export const GUARDRAILS: readonly Guardrail[] = [
+  {
+    id: 'single-source-of-truth',
+    name: 'Single Source of Truth',
+    description: 'Un patrón por concern: caché, serialización de errores y patrones de consulta.',
+  },
+  {
+    id: 'boundary-contracts',
+    name: 'Boundary Contracts',
+    description: 'Interfaces en los límites de los módulos, no en su interior.',
+  },
+  {
+    id: 'dependency-direction',
+    name: 'Dependency Direction',
+    description: 'Flechas en una sola vía, sin ciclos entre módulos.',
+  },
+  {
+    id: 'observability-built-in',
+    name: 'Observability Built-in',
+    description: 'Logs estructurados, métricas y tracing desde el día 1.',
+  },
+  {
+    id: 'security-by-default',
+    name: 'Security by Default',
+    description: 'AuthZ en cada endpoint, validación de entrada y rate limiting.',
+  },
+  {
+    id: 'rollback-defined',
+    name: 'Rollback Defined',
+    description: 'Estrategia de rollback definida ANTES de desplegar.',
+  },
+  {
+    id: 'spec-code-convergence',
+    name: 'Spec-Code Convergence',
+    description: 'Spec viva, actualizada en el mismo PR que el código.',
+  },
+] as const;
+
+export interface DeployTarget {
+  /** Fichero o manifiesto que delata la plataforma. Literal técnico, igual en todo idioma. */
+  signal: string;
+  platform: string;
+  /** Comando de despliegue literal; nunca se traduce. */
+  cli: string;
+}
+
+/** Matriz de deploy multistack del protocolo SDD Maestro. */
+export const DEPLOY_MATRIX: readonly DeployTarget[] = [
+  { signal: 'vercel.json + api/[...path].ts', platform: 'Vercel', cli: 'npx vercel --prod' },
+  { signal: 'netlify.toml', platform: 'Netlify', cli: 'npx netlify deploy --prod --dir=dist' },
+  { signal: 'wrangler.toml / wrangler.jsonc', platform: 'Cloudflare', cli: 'npx wrangler pages deploy' },
+  { signal: 'railway.json', platform: 'Railway', cli: 'railway up' },
+  {
+    signal: 'Dockerfile + docker-compose.yml',
+    platform: 'Docker / VPS',
+    cli: 'docker compose up -d --build',
+  },
+] as const;

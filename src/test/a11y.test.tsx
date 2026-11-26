@@ -116,7 +116,8 @@ describe('estructura semántica exigida por P3 (HTML semántico)', () => {
     const user = userEvent.setup();
     const { container } = render(<SddMaestroView lang="es" />);
 
-    const gates = container.querySelectorAll('ol > li');
+    const gatesSection = container.querySelector('[aria-labelledby="sdd-gates-heading"]');
+    const gates = gatesSection?.querySelectorAll('ol > li') ?? [];
     expect(gates.length).toBe(8);
 
     // Only E5 ships expanded: its 6 items are the only checkboxes in the DOM.
@@ -125,7 +126,9 @@ describe('estructura semántica exigida por P3 (HTML semántico)', () => {
     expect(container.querySelectorAll('legend').length).toBe(1);
 
     const expander = (index: number) =>
-      container.querySelectorAll('ol > li button[aria-expanded]')[index] as HTMLButtonElement;
+      gatesSection?.querySelectorAll('ol > li button[aria-expanded]')[
+        index
+      ] as HTMLButtonElement;
     for (let index = 0; index < gates.length; index += 1) {
       if (expander(index).getAttribute('aria-expanded') === 'false') {
         await user.click(expander(index));
@@ -145,15 +148,31 @@ describe('estructura semántica exigida por P3 (HTML semántico)', () => {
     }
   });
 
-  it('la tabla de quality gates tiene cabeceras con scope y caption accesible', () => {
+  it('todas las tablas de la vista tienen cabeceras con scope y caption accesible', () => {
     const { container } = render(<SddMaestroView lang="es" />);
-    const table = container.querySelector('table');
+    const tables = container.querySelectorAll('table');
 
-    expect(table).not.toBeNull();
-    expect(table?.querySelector('caption.sr-only')).not.toBeNull();
-    const headers = table?.querySelectorAll('th') ?? [];
-    expect(headers.length).toBeGreaterThan(0);
-    for (const header of headers) expect(header).toHaveAttribute('scope', 'col');
+    // Quality gates y la matriz de deploy recuperada del protocolo.
+    expect(tables.length).toBe(2);
+    for (const table of tables) {
+      expect(table.querySelector('caption.sr-only')).not.toBeNull();
+      const headers = table.querySelectorAll('thead th');
+      expect(headers.length).toBeGreaterThan(0);
+      for (const header of headers) expect(header).toHaveAttribute('scope', 'col');
+    }
+  });
+
+  it('los guardrails son una lista ordenada etiquetada por su heading', () => {
+    const { container } = render(<SddMaestroView lang="es" />);
+    const section = container.querySelector('[aria-labelledby="sdd-guardrails-heading"]');
+    const items = section?.querySelectorAll('ol > li') ?? [];
+
+    expect(section).not.toBeNull();
+    expect(container.querySelector('#sdd-guardrails-heading')).not.toBeNull();
+    expect(items.length).toBe(7);
+    for (const item of items) {
+      expect((item.textContent ?? '').trim().length).toBeGreaterThan(20);
+    }
   });
 
   it('el checklist de producción expone cada criterio como checkbox con nombre accesible', () => {

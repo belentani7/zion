@@ -6,7 +6,7 @@
 [![Status: Transmuted](https://img.shields.io/badge/COSMOS-OMEGA--PRIME-d4af37.svg?style=for-the-badge)](#)
 [![Frecuencia: 432 Hz](https://img.shields.io/badge/SOLFEGGIO-432_Hz-ff0055.svg?style=for-the-badge)](#)
 [![TypeScript 7](https://img.shields.io/badge/CODE-TYPESCRIPT_7-3178c6.svg?style=for-the-badge)](#)
-[![Tests: 239 unit + 28 e2e](https://img.shields.io/badge/TESTS-239_UNIT_·_28_E2E-16a34a.svg?style=for-the-badge)](#-5-calidad-verificable)
+[![Tests: 244 unit + 28 e2e](https://img.shields.io/badge/TESTS-244_UNIT_·_28_E2E-16a34a.svg?style=for-the-badge)](#-5-calidad-verificable)
 [![Three.js](https://img.shields.io/badge/ENGINE-THREE.JS_WEBGL-000000.svg?style=for-the-badge)](#)
 
 ---
@@ -120,14 +120,17 @@ Express app que `npm start`. Rutas:
 
 ## 🧪 5. Calidad verificable
 
-El workspace aplica el Protocolo SDD Maestro (`PROTOCOLO_COMPLETO_BELENTANI_VISUAL_ENGINE.md`)
-y los 30 criterios de `PRODUCTION_CHECKLIST.md`. Todo está automatizado:
+El workspace aplica el Protocolo SDD Maestro
+([`PROTOCOLO-SDD-MAESTRO.md`](PROTOCOLO-SDD-MAESTRO.md): constitución P1-P5, 7 guardrails
+arquitectónicos, ciclo E0-E7 y matriz de deploy), el protocolo del motor visual
+(`PROTOCOLO_COMPLETO_BELENTANI_VISUAL_ENGINE.md`) y los 30 criterios de
+`PRODUCTION_CHECKLIST.md`. Todo está automatizado:
 
 | Comando | Qué verifica | Sale mal si… |
 | --- | --- | --- |
 | `npm run lint` / `npm run typecheck` | `tsc --noEmit` sobre `src`, `server.ts`, `api/`, `e2e/` y las configs | hay un error de tipos |
 | `npm run build` | typecheck + bundle de producción con code splitting | falla la compilación |
-| `npm test` | 239 tests (unitarios, componentes, axe-core WCAG 2.1 AA, shell y servidor Express) | un test falla |
+| `npm test` | 244 tests (unitarios, componentes, axe-core WCAG 2.1 AA, shell y servidor Express) | un test falla |
 | `npm run test:coverage` | lo anterior con cobertura v8 en `coverage/` | — |
 | `npm run test:e2e` | 28 casos Playwright (chromium + móvil) sobre el build de producción | falta un navegador: `npx playwright install --with-deps chromium` |
 | `npm run perf` | presupuestos de bundle: primer paint vs lazy, gzip/brotli, duplicados | se supera un presupuesto |
@@ -162,6 +165,9 @@ documentadas en [`scripts/README.md`](scripts/README.md):
 
 ### Documentación del ciclo
 
+- [`PROTOCOLO-SDD-MAESTRO.md`](PROTOCOLO-SDD-MAESTRO.md) — constitución P1-P5, los 7 guardrails
+  arquitectónicos, el ciclo E0-E7 con sus gates, la matriz de deploy multistack y el checklist
+  de producción de 30 criterios. Es la fuente de la que se nutre la vista SDD Maestro.
 - [`SPEC.md`](SPEC.md) — especificación con criterios de aceptación EARS.
 - [`CHANGELOG.md`](CHANGELOG.md) — historial Keep a Changelog.
 - [`PRODUCTION_CHECKLIST.md`](PRODUCTION_CHECKLIST.md) — matriz de 30 criterios.

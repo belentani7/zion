@@ -134,6 +134,10 @@ GITHUB-CONTEXTO-*
 Informe-Proyectos-*.md
 RELATORIO-*
 *MAESTRO*
+# Excepción: PROTOCOLO-SDD-MAESTRO.md no es un relato de sesión ni una nota personal,
+# es la especificación canónica de la que salen los 7 guardrails y la matriz de deploy
+# que renderiza src/components/sdd-maestro/. Se versiona a propósito.
+!PROTOCOLO-SDD-MAESTRO.md
 BELENTANI-UNIFIED-INFO/
 belentani-unified/
 CONTEXTO_MAESTRO/

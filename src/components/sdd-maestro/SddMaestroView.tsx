@@ -12,12 +12,20 @@ import {
   Gavel,
   ListChecks,
   Milestone,
+  Network,
+  Rocket,
   RotateCcw,
   ScrollText,
   ShieldCheck,
   XCircle,
 } from 'lucide-react';
-import { SDD_PRINCIPLES, SDD_STAGES, QUALITY_GATES } from './sddData';
+import {
+  DEPLOY_MATRIX,
+  GUARDRAILS,
+  QUALITY_GATES,
+  SDD_PRINCIPLES,
+  SDD_STAGES,
+} from './sddData';
 import {
   auditSpec,
   cycleStageStatus,
@@ -441,6 +449,37 @@ export const SddMaestroView: React.FC<Props> = ({ lang }) => {
         </div>
       </section>
 
+      {/* Architectural guardrails */}
+      <section aria-labelledby="sdd-guardrails-heading" className="flex flex-col gap-3">
+        <h3
+          id="sdd-guardrails-heading"
+          className="text-sm font-bold text-white flex items-center gap-2"
+        >
+          <Network className="w-4 h-4 text-rose-400" />
+          {t.sddGuardrails}
+        </h3>
+        <p className="text-[11px] text-zinc-500">{t.sddGuardrailsHint}</p>
+        <ol className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {GUARDRAILS.map((guardrail, index) => (
+            <li
+              key={guardrail.id}
+              id={`sdd-guardrail-${guardrail.id}`}
+              className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 flex gap-3"
+            >
+              <span className="font-mono text-xs font-bold text-rose-400 shrink-0">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className="flex flex-col gap-1">
+                <span className="text-xs font-bold text-white uppercase tracking-wide">
+                  {guardrail.name}
+                </span>
+                <span className="text-[11px] text-zinc-400">{guardrail.description}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       {/* Lifecycle E0-E7 */}
       <section aria-labelledby="sdd-gates-heading" className="flex flex-col gap-3">
         <h3 id="sdd-gates-heading" className="text-sm font-bold text-white flex items-center gap-2">
@@ -582,20 +621,26 @@ export const SddMaestroView: React.FC<Props> = ({ lang }) => {
       <section aria-labelledby="sdd-quality-heading" className="flex flex-col gap-3">
         <h3 id="sdd-quality-heading" className="text-sm font-bold text-white flex items-center gap-2">
           <ClipboardList className="w-4 h-4 text-sky-400" />
-          Quality Gates
+          {t.sddQualityGatesTitle}
         </h3>
         <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
-              <caption className="sr-only">
-                Quality gates obligatorios del protocolo con su herramienta, umbral y comando
-              </caption>
+              <caption className="sr-only">{t.sddQualityCaption}</caption>
               <thead>
                 <tr className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-400 font-semibold uppercase tracking-wider">
-                  <th scope="col" className="py-3 px-4">Gate</th>
-                  <th scope="col" className="py-3 px-4">Herramienta</th>
-                  <th scope="col" className="py-3 px-4">Umbral</th>
-                  <th scope="col" className="py-3 px-4">Comando</th>
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddQualityColGate}
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddQualityColTool}
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddQualityColThreshold}
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddQualityColCommand}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800/60">
@@ -607,6 +652,52 @@ export const SddMaestroView: React.FC<Props> = ({ lang }) => {
                     <td className="py-2.5 px-4">
                       <code className="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-emerald-300">
                         {gate.command}
+                      </code>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Deploy matrix */}
+      <section aria-labelledby="sdd-deploy-heading" className="flex flex-col gap-3">
+        <h3 id="sdd-deploy-heading" className="text-sm font-bold text-white flex items-center gap-2">
+          <Rocket className="w-4 h-4 text-emerald-400" />
+          {t.sddDeployMatrix}
+        </h3>
+        <p className="text-[11px] text-zinc-500">{t.sddDeployMatrixHint}</p>
+        <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <caption className="sr-only">
+                {`${t.sddDeployMatrix}: ${t.sddDeploySignal}, ${t.sddDeployPlatform}, ${t.sddDeployCli}`}
+              </caption>
+              <thead>
+                <tr className="bg-zinc-950/80 border-b border-zinc-800 text-zinc-400 font-semibold uppercase tracking-wider">
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddDeploySignal}
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddDeployPlatform}
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    {t.sddDeployCli}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800/60">
+                {DEPLOY_MATRIX.map((target) => (
+                  <tr key={target.platform} className="hover:bg-zinc-800/30 transition-colors">
+                    <td className="py-2.5 px-4 font-mono text-[11px] text-zinc-300">
+                      {target.signal}
+                    </td>
+                    <td className="py-2.5 px-4 font-semibold text-white">{target.platform}</td>
+                    <td className="py-2.5 px-4">
+                      <code className="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800 font-mono text-[11px] text-emerald-300">
+                        {target.cli}
                       </code>
                     </td>
                   </tr>
