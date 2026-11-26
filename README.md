@@ -6,7 +6,7 @@
 [![Status: Transmuted](https://img.shields.io/badge/COSMOS-OMEGA--PRIME-d4af37.svg?style=for-the-badge)](#)
 [![Frecuencia: 432 Hz](https://img.shields.io/badge/SOLFEGGIO-432_Hz-ff0055.svg?style=for-the-badge)](#)
 [![TypeScript 7](https://img.shields.io/badge/CODE-TYPESCRIPT_7-3178c6.svg?style=for-the-badge)](#)
-[![Tests: 244 unit + 28 e2e](https://img.shields.io/badge/TESTS-244_UNIT_·_28_E2E-16a34a.svg?style=for-the-badge)](#-5-calidad-verificable)
+[![Tests: 251 unit + 28 e2e](https://img.shields.io/badge/TESTS-251_UNIT_·_28_E2E-16a34a.svg?style=for-the-badge)](#-5-calidad-verificable)
 [![Three.js](https://img.shields.io/badge/ENGINE-THREE.JS_WEBGL-000000.svg?style=for-the-badge)](#)
 
 ---
@@ -130,7 +130,7 @@ arquitectónicos, ciclo E0-E7 y matriz de deploy), el protocolo del motor visual
 | --- | --- | --- |
 | `npm run lint` / `npm run typecheck` | `tsc --noEmit` sobre `src`, `server.ts`, `api/`, `e2e/` y las configs | hay un error de tipos |
 | `npm run build` | typecheck + bundle de producción con code splitting | falla la compilación |
-| `npm test` | 244 tests (unitarios, componentes, axe-core WCAG 2.1 AA, shell y servidor Express) | un test falla |
+| `npm test` | 251 tests (unitarios, componentes, axe-core WCAG 2.1 AA, shell y servidor Express) | un test falla |
 | `npm run test:coverage` | lo anterior con cobertura v8 en `coverage/` | — |
 | `npm run test:e2e` | 28 casos Playwright (chromium + móvil) sobre el build de producción | falta un navegador: `npx playwright install --with-deps chromium` |
 | `npm run perf` | presupuestos de bundle: primer paint vs lazy, gzip/brotli, duplicados | se supera un presupuesto |

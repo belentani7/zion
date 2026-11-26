@@ -175,6 +175,15 @@ describe('estructura semántica exigida por P3 (HTML semántico)', () => {
     }
   });
 
+  it('el Visual Engine expone una región de estado para la exportación de snapshots', () => {
+    const { container } = render(<VisualEngineView lang="es" />);
+    const status = container.querySelector('#engine-snapshot-status');
+
+    expect(status).not.toBeNull();
+    // En frío la región no anuncia nada: sólo habla cuando hay un resultado.
+    expect((status?.textContent ?? '').trim()).toBe('');
+  });
+
   it('el checklist de producción expone cada criterio como checkbox con nombre accesible', () => {
     const { container } = render(<ProductionChecklistView lang="es" />);
 
@@ -203,7 +212,9 @@ describe('estructura semántica exigida por P3 (HTML semántico)', () => {
     const { container } = render(<VisualEngineView lang="es" />);
 
     // jsdom cannot create a GL context: the component must render the fallback.
-    const status = container.querySelector('[role="status"]');
+    const status = container.querySelector('#engine-webgl-fallback');
+    expect(status).not.toBeNull();
+    expect(status?.getAttribute('role')).toBe('status');
     expect(status?.textContent).toContain('WebGL');
     expect(container.querySelector('canvas')).toBeNull();
   });

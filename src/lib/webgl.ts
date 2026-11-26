@@ -237,3 +237,33 @@ export function orbitFromKey(camera: OrbitalCamera, key: string): OrbitalCamera 
       return null;
   }
 }
+
+/**
+ * Resultado de la exportación de un snapshot PNG desde el Visual Engine.
+ *
+ * El canvas no conoce idiomas (guardrail 3: la dependencia va de la vista al
+ * componente técnico, nunca al revés), así que eleva el resultado y es la vista
+ * la que lo anuncia traducido.
+ */
+export type SnapshotResult = { ok: true; fileName: string } | { ok: false };
+
+/**
+ * Nombre de fichero del snapshot exportado. Formato histórico del motor:
+ * `belentani-<generador>-seed<semilla>-<timestamp>.png`.
+ */
+export function snapshotFileName(generator: string, seed: number, timestamp: number): string {
+  return `belentani-${generator}-seed${seed}-${timestamp}.png`;
+}
+
+/**
+ * Texto que la región `role="status"` de la vista debe anunciar para un resultado
+ * de snapshot. Devuelve cadena vacía mientras no haya resultado, para no anunciar
+ * nada en frío.
+ */
+export function describeSnapshot(
+  result: SnapshotResult | null,
+  labels: { ok: string; error: string },
+): string {
+  if (result === null) return '';
+  return result.ok ? labels.ok : labels.error;
+}

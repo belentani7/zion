@@ -30,6 +30,8 @@ export const translations = {
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
     engineSubtitle: 'Experiências visuais procedurais Three.js r174 — WebGL2, EffectComposer e Bloom',
+    engineSnapshotOk: 'Snapshot PNG exportado',
+    engineSnapshotError: 'Falha ao exportar o snapshot',
     presetLabel: 'Gerador Procedural',
     paletteLabel: 'Paleta Cromática',
     controlsTitle: 'Parâmetros em Tempo Real',
@@ -137,6 +139,8 @@ export const translations = {
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
     engineSubtitle: 'Experiencias visuales procedurales Three.js r174 — WebGL2, EffectComposer y Bloom',
+    engineSnapshotOk: 'Snapshot PNG exportado',
+    engineSnapshotError: 'No se pudo exportar el snapshot',
     presetLabel: 'Generador Procedural',
     paletteLabel: 'Paleta Cromática',
     controlsTitle: 'Parámetros en Tiempo Real',
@@ -244,6 +248,8 @@ export const translations = {
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
     engineSubtitle: 'Three.js r174 procedural visual experiences — WebGL2, EffectComposer and Bloom',
+    engineSnapshotOk: 'PNG snapshot exported',
+    engineSnapshotError: 'Snapshot export failed',
     presetLabel: 'Procedural Generator',
     paletteLabel: 'Chromatic Palette',
     controlsTitle: 'Real-Time Parameters',
@@ -351,6 +357,8 @@ export const translations = {
     // Visual Engine
     engineTitle: 'Belentani Visual Engine',
     engineSubtitle: 'Experiències visuals procedurals Three.js r174 — WebGL2, EffectComposer i Bloom',
+    engineSnapshotOk: 'Snapshot PNG exportat',
+    engineSnapshotError: 'Exportacio del snapshot fallida',
     presetLabel: 'Generador Procedural',
     paletteLabel: 'Paleta Cromàtica',
     controlsTitle: 'Paràmetres en Temps Real',
